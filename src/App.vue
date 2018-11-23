@@ -1,41 +1,13 @@
 <template>
   <div id="app">
-    <div>五子棋</div>
-    <div v-if="!isStart">
-      <div>对战记录</div>
-      <Welcome />
-    </div>
-    <div v-if="isStart">
-      <InfoTool />
-      <Checkerboard />
-    </div>
+    <router-view />
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex'
-import { opponent } from './constant'
-import { cloneDeep } from './tools'
-import Welcome from './components/Welcome.vue'
-import Checkerboard from './components/Checkerboard.vue'
-import InfoTool from './components/InfoTool.vue'
 
 export default {
   name: 'app',
-  data: () => {
-    return {
-      opponent: cloneDeep(opponent)
-    }
-  },
-  computed: mapState({
-    isStart: state => state.isStart,
-    selectOpponent: 'opponent'
-  }),
-  components: {
-    Welcome,
-    InfoTool,
-    Checkerboard
-  }
 }
 </script>
 
@@ -44,6 +16,12 @@ export default {
   box-sizing: border-box;
 }
 
+a {
+  color: #333;
+  text-decoration: none;
+}
+
+.btn,
 button {
   border-radius: 4px;
   padding: 5px 10px;

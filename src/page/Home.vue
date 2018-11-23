@@ -1,14 +1,14 @@
 <template>
-  <div class="welcome">
+  <div class="home">
     <div class="opponent">
-      <button
+      <button class="btn"
         v-for="(item, key) in opponent"
         :key="key"
-        :disabled="item.value !== opponent.site.value"
+        :disabled="active.indexOf(item.value) === -1"
         @click="handleOpponent(item)">
         {{ item.text }}
       </button>
-      <button>对战记录</button>
+      <router-link class="btn" to="/log">对战记录</router-link>
     </div>
   </div>
 </template>
@@ -19,19 +19,21 @@ import { opponent, piece } from '../constant'
 import { cloneDeep } from '../tools'
 
 export default {
-  name: 'welcome',
+  name: 'home',
   data () {
     return {
-      opponent: cloneDeep(opponent)
+      opponent: cloneDeep(opponent),
+      active: [opponent.site.value]
     }
   },
   created () {
+    window.home = this
+
     this.setCountDown(0)
   },
   methods: {
-    ...mapMutations(['setIsStart', 'setOpponent', 'setUsers', 'setCountDown']),
+    ...mapMutations(['setOpponent', 'setUsers', 'setCountDown']),
     handleOpponent (data) {
-      this.setIsStart(true)
       this.setOpponent(data)
 
       if (data.value === opponent.site.value) {
@@ -48,13 +50,15 @@ export default {
           }
         ])
       }
+
+      this.$router.push('game')
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.welcome {
+.home {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,7 +70,7 @@ export default {
   flex-direction: column;
   align-items: center;
 
-  button {
+  .btn {
     margin-top: 20px;
   }
 }
