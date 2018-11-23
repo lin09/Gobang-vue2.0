@@ -8,12 +8,14 @@
         @click="handleOpponent(item)">
         {{ item.text }}
       </button>
+      <button>对战记录</button>
     </div>
   </div>
 </template>
 
 <script>
-import { opponent } from '../constant'
+import { mapMutations } from 'vuex'
+import { opponent, piece } from '../constant'
 import { cloneDeep } from '../tools'
 
 export default {
@@ -23,9 +25,29 @@ export default {
       opponent: cloneDeep(opponent)
     }
   },
+  created () {
+    this.setCountDown(0)
+  },
   methods: {
+    ...mapMutations(['setIsStart', 'setOpponent', 'setUsers', 'setCountDown']),
     handleOpponent (data) {
-      this.$emit('handleOpponent', data)
+      this.setIsStart(true)
+      this.setOpponent(data)
+
+      if (data.value === opponent.site.value) {
+        this.setUsers([
+          {
+            name: '我',
+            color: piece.color.black,
+            fraction: 0
+          },
+          {
+            name: '你',
+            color: piece.color.white,
+            fraction: 0
+          }
+        ])
+      }
     }
   }
 }
@@ -46,15 +68,6 @@ export default {
 
   button {
     margin-top: 20px;
-    border-radius: 4px;
-    padding: 5px 10px;
-    background: #fff;
-    cursor: pointer;
-    font-size: 14px;
-
-    &:disabled {
-      cursor: not-allowed;
-    }
   }
 }
 </style>

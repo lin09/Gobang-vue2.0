@@ -22,15 +22,20 @@ export const opponent = {
   }
 }
 
+// 棋子
 export const piece = {
   color: {
+    none: {
+      value: 0,
+      text: '空'
+    },
     black: {
       value: 1,
-      text: '黑'
+      text: '黑棋'
     },
     white: {
       value: 2,
-      text: '白'
+      text: '白棋'
     }
   }
 }

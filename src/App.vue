@@ -1,47 +1,59 @@
 <template>
   <div id="app">
     <div>五子棋</div>
-    <div v-show="!isStart">
+    <div v-if="!isStart">
       <div>对战记录</div>
-      <Welcome @handleOpponent="handleOpponent" />
+      <Welcome />
     </div>
-    <div v-show="isStart">
-      <Site v-if="selectOpponent.value === opponent.site.value" />
+    <div v-if="isStart">
+      <InfoTool />
+      <Checkerboard />
     </div>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import { opponent } from './constant'
 import { cloneDeep } from './tools'
 import Welcome from './components/Welcome.vue'
-import Site from './components/Site.vue'
+import Checkerboard from './components/Checkerboard.vue'
+import InfoTool from './components/InfoTool.vue'
 
 export default {
   name: 'app',
   data: () => {
     return {
-      isStart: false,
-      opponent: cloneDeep(opponent),
-      selectOpponent: {}
+      opponent: cloneDeep(opponent)
     }
   },
+  computed: mapState({
+    isStart: state => state.isStart,
+    selectOpponent: 'opponent'
+  }),
   components: {
     Welcome,
-    Site
-  },
-  methods: {
-    handleOpponent (data) {
-      this.isStart = true
-      this.selectOpponent = { ...data }
-    }
+    InfoTool,
+    Checkerboard
   }
 }
 </script>
 
-<style>
+<style lang="scss">
 * {
   box-sizing: border-box;
+}
+
+button {
+  border-radius: 4px;
+  padding: 5px 10px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }
 
 #app {
