@@ -71,7 +71,7 @@ export default {
       this.next()
     },
     handleAgain () {
-      this.setRoundNum()
+      this.next()
     },
     handleQuit () {
       this.$router.go(-1)
