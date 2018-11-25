@@ -10,8 +10,8 @@
         <div class="score">{{ user.fraction }} : {{ opponent.fraction }}</div>
       </div>
       <div class="col-3">
-        <button>认输</button>
-        <button>平局</button>
+        <button @click="handleDefeat">认输</button>
+        <button @click="handleAgain">平局</button>
         <button @click="handleQuit">退出</button>
       </div>
     </div>
@@ -24,7 +24,7 @@
           <div>倒计时：01:00</div>
         </div>
       </div>
-      <div>轮到{{ fall.color.text }}下</div>
+      <div>{{ fall.color ? `轮到${fall.color.text}下` : '当局结束' }}</div>
       <div class="user">
         <div v-if="countDown > 0" class="time">
           <div>局{{ blank }}时：01:00</div>
@@ -38,7 +38,8 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
+import { piece } from '../constant'
 import Piece from './Piece.vue'
 
 export default {
@@ -49,18 +50,25 @@ export default {
   data () {
     return {
       // 直接写全角空格在 template 上会报 no-irregular-whitespace，使用 eslint-disable-next-line 无效果
-      blank: '　',
-      roundNum: 1
+      blank: '　'
     }
   },
   computed: mapState({
     user: state => state.user,
     opponent: state => state.opponent,
     fall: state => state.fall,
-    countDown: state => state.countDown
+    countDown: state => state.countDown,
+    roundNum: state => state.roundNum
   }),
   methods: {
-    ...mapMutations(['setIsStart']),
+    ...mapActions(['defeat']),
+    ...mapMutations(['setRoundNum']),
+    handleDefeat () {
+      this.defeat({ piece })
+    },
+    handleAgain () {
+      this.setRoundNum()
+    },
     handleQuit () {
       this.$router.go(-1)
     }

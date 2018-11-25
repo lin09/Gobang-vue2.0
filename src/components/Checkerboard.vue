@@ -18,12 +18,15 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 import { piece } from '../constant'
 import Piece from './Piece.vue'
 
 export default {
   name: 'checkerboard',
+  components: {
+    Piece
+  },
   data () {
     return {
       letter: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'N', 'M', 'O'],
@@ -36,25 +39,38 @@ export default {
   computed: mapState({
     fall: state => state.fall,
     user: state => state.user,
-    opponent: state => state.opponent
+    opponent: state => state.opponent,
+    roundNum: state => state.roundNum
   }),
-  components: {
-    Piece
+  watch: {
+    // roundNum () {
+    //   this.initData()
+    // }
   },
   created () {
-    this.handleFall(piece.color.black.value)
+    window.cb = this
+
+    this.setRoundNum(1)
     this.initData()
   },
   methods: {
-    ...mapMutations(['setFall']),
+    ...mapActions(['victory']),
+    ...mapMutations(['setFall', 'setRoundNum']),
     handlePiece (data) {
-      this.baseData[data.key].value = this.fall.color.value
+      let item = this.baseData[data.key]
+      item.value = this.fall.color.value
+
+      if (this.handleIsOver(item) === true) {
+        this.isOver = true
+        this.victory()
+        return
+      }
 
       if (this.fall.color.value === piece.color.black.value) {
-        this.baseData[data.key].text = piece.color.black.text
+        item.text = piece.color.black.text
         this.handleFall(piece.color.white.value)
       } else {
-        this.baseData[data.key].text = piece.color.white.text
+        item.text = piece.color.white.text
         this.handleFall(piece.color.black.value)
       }
     },
@@ -70,7 +86,65 @@ export default {
         event.stopPropagation && event.stopPropagation();
       }
     },
+    handleIsOver (data) {
+      let isOver = false
+      let item = this.countData[data.key]
+
+      let tItems = this.getConnections(item.tk)
+      let bItems = this.getConnections(item.bk)
+
+      let rtItems = this.getConnections(item.rtk)
+      let lbItems = this.getConnections(item.lbk)
+
+      let rItems = this.getConnections(item.rk)
+      let lItems = this.getConnections(item.lk)
+
+      let rbItems = this.getConnections(item.rbk)
+      let ltItems = this.getConnections(item.ltk)
+
+      let connections = [data]
+
+      if (1 + tItems.length + bItems > 4) {
+        connections = connections.concat(tItems, bItems)
+        isOver = true
+      }
+      if (1 + rtItems.length + lbItems.length > 4) {
+        connections = connections.concat(rtItems, lbItems)
+        isOver = true
+      }
+      if (1 + rItems.length + lItems.length > 4) {
+        connections = connections.concat(rItems, lItems)
+        isOver = true
+      }
+      if (1 + rbItems.length + ltItems.length > 4) {
+        connections = connections.concat(rbItems, ltItems)
+        isOver = true
+      }
+
+      if (isOver) {
+        for (let i in connections) {
+          connections[i].active = true
+        }
+      }
+
+      return isOver
+    },
+    getConnections (itemKeys) {
+      let connections = []
+      for (let i in itemKeys) {
+        let item = this.baseData[itemKeys[i]]
+        if (item.value === this.fall.color.value) {
+          connections.push(item)
+        } else {
+          break
+        }
+      }
+      return connections
+    },
     initData () {
+      this.handleFall(piece.color.black.value)
+      this.isOver = false
+
       let baseData = {}, countData = {}
 
       const getCountItem = (k, d, i, v) => {
@@ -95,7 +169,8 @@ export default {
             ...piece.color.none,
             x,
             y,
-            key
+            key,
+            active: false
           }
 
           baseData[key] = item
