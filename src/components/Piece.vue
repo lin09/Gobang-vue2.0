@@ -17,9 +17,12 @@ export default {
       type: Object,
       default: () => {
         return {
+          // 黑子白子的值
           value: piece.color.none.value,
+          // 坐标
           x: 0,
           y: 0,
+          // 五子相连，变更样式
           active: false
         }
       }

@@ -29,43 +29,50 @@ export default {
   },
   data () {
     return {
+      // 横行线标记
       letter: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'N', 'M', 'O'],
+      // 棋子数据
       baseData: {},
-      countData: {},
-      color: piece.color.black.value,
-      isOver: false
+      // 统计棋子数据
+      countData: {}
     }
   },
   computed: mapState({
     fall: state => state.fall,
     user: state => state.user,
     opponent: state => state.opponent,
-    roundNum: state => state.roundNum
+    roundNum: state => state.roundNum,
+    isOver: state => state.isOver
   }),
   watch: {
-    // roundNum () {
-    //   this.initData()
-    // }
+    roundNum () {
+      this.initData()
+    }
   },
   created () {
     window.cb = this
 
+    // 初始化局数
     this.setRoundNum(1)
+    // 初始化数据
     this.initData()
   },
   methods: {
     ...mapActions(['victory']),
-    ...mapMutations(['setFall', 'setRoundNum']),
+    ...mapMutations(['setFall', 'setRoundNum', 'setIsOver']),
+    // 下棋子处理
     handlePiece (data) {
       let item = this.baseData[data.key]
       item.value = this.fall.color.value
 
+      // 下棋子后是不是结束
       if (this.handleIsOver(item) === true) {
-        this.isOver = true
+        this.setIsOver(true)
         this.victory()
         return
       }
 
+      // 未结束，设置轮换
       if (this.fall.color.value === piece.color.black.value) {
         item.text = piece.color.black.text
         this.handleFall(piece.color.white.value)
@@ -74,6 +81,7 @@ export default {
         this.handleFall(piece.color.black.value)
       }
     },
+    // 设置轮换
     handleFall (value) {
       if (this.user.color.value === value) {
         this.setFall(this.user)
@@ -81,11 +89,13 @@ export default {
         this.setFall(this.opponent)
       }
     },
+    // 结束，不能点击
     handleStop (event) {
       if (this.isOver) {
         event.stopPropagation && event.stopPropagation();
       }
     },
+    // 检查是否是五子相连
     handleIsOver (data) {
       let isOver = false
       let item = this.countData[data.key]
@@ -104,7 +114,7 @@ export default {
 
       let connections = [data]
 
-      if (1 + tItems.length + bItems > 4) {
+      if (1 + tItems.length + bItems.length > 4) {
         connections = connections.concat(tItems, bItems)
         isOver = true
       }
@@ -129,6 +139,7 @@ export default {
 
       return isOver
     },
+    // 获取相连棋子
     getConnections (itemKeys) {
       let connections = []
       for (let i in itemKeys) {
@@ -141,12 +152,15 @@ export default {
       }
       return connections
     },
+    // 初始化
     initData () {
+      // 黑子先手
       this.handleFall(piece.color.black.value)
-      this.isOver = false
+      this.setIsOver(false)
 
       let baseData = {}, countData = {}
 
+      // 设置棋子方向的数据
       const getCountItem = (k, d, i, v) => {
         let data = countData[k] || {}
         let dk = d + 'k'
@@ -183,7 +197,9 @@ export default {
             let l = x - n
 
             if (t > 0) {
+              // 上一个棋子下标
               let k = `${ x }-${ t }`
+              // 'b' : 当前棋子相对上一个棋子，为上一个棋子的下面
               countData[k] = getCountItem(k, 'b', i, item)
             }
 

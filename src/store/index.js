@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
+import { piece } from '../constant'
+
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -16,7 +18,9 @@ export default new Vuex.Store({
     // 倒计时
     countDown: 0,
     // 局数
-    roundNum: 1
+    roundNum: 1,
+    // 结束1局
+    isOver: false
   },
   mutations: {
     setUser (state, user) {
@@ -40,10 +44,14 @@ export default new Vuex.Store({
       } else {
         state.roundNum += 1
       }
+    },
+    setIsOver (state, isOver) {
+      state.isOver = isOver
     }
   },
   actions: {
-    defeat ({ commit, state }, { piece }) {
+    // 认输
+    defeat ({ commit, state }) {
       commit('setUser', {
         ...state.user,
         color: state.user.color.value !== piece.color.black.value ? piece.color.black : piece.color.white,
@@ -56,6 +64,7 @@ export default new Vuex.Store({
       })
       commit('setRoundNum')
     },
+    // 赢
     victory ({ commit, state }) {
       if (state.fall.color.value === state.user.color.value) {
         commit('setUser', {
@@ -68,6 +77,17 @@ export default new Vuex.Store({
           fraction: state.opponent.fraction + 1
         })
       }
+    },
+    // 下一局
+    next ({ commit, state }) {
+      commit('setUser', {
+        ...state.user,
+        color: state.user.color.value !== piece.color.black.value ? piece.color.black : piece.color.white
+      })
+      commit('setOpponent', {
+        ...state.opponent,
+        color: state.opponent.color.value !== piece.color.black.value ? piece.color.black : piece.color.white
+      })
       commit('setRoundNum')
     }
   }

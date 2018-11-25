@@ -3,15 +3,16 @@
     <div class="item">
       <div class="col-3">
         第{{ roundNum }}局
-        <button v-if="countDown > 0">开始</button>
+        <button v-show="countDown > 0 && isOver">开始</button>
+        <button v-show="countDown === 0 && isOver" @click="handleNext">下一局</button>
       </div>
       <div class="col-3">
         <div>比分</div>
         <div class="score">{{ user.fraction }} : {{ opponent.fraction }}</div>
       </div>
       <div class="col-3">
-        <button @click="handleDefeat">认输</button>
-        <button @click="handleAgain">平局</button>
+        <button @click="handleDefeat" :disabled="isOver">认输</button>
+        <button @click="handleAgain" :disabled="isOver">平局</button>
         <button @click="handleQuit">退出</button>
       </div>
     </div>
@@ -24,7 +25,7 @@
           <div>倒计时：01:00</div>
         </div>
       </div>
-      <div>{{ fall.color ? `轮到${fall.color.text}下` : '当局结束' }}</div>
+      <div>{{ !isOver ? `轮到${ fall.color.text }下` : `${ fall.color.text }赢` }}</div>
       <div class="user">
         <div v-if="countDown > 0" class="time">
           <div>局{{ blank }}时：01:00</div>
@@ -39,7 +40,6 @@
 
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
-import { piece } from '../constant'
 import Piece from './Piece.vue'
 
 export default {
@@ -58,13 +58,17 @@ export default {
     opponent: state => state.opponent,
     fall: state => state.fall,
     countDown: state => state.countDown,
-    roundNum: state => state.roundNum
+    roundNum: state => state.roundNum,
+    isOver: state => state.isOver
   }),
   methods: {
-    ...mapActions(['defeat']),
+    ...mapActions(['defeat', 'next']),
     ...mapMutations(['setRoundNum']),
     handleDefeat () {
-      this.defeat({ piece })
+      this.defeat()
+    },
+    handleNext () {
+      this.next()
     },
     handleAgain () {
       this.setRoundNum()
