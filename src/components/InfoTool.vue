@@ -7,31 +7,31 @@
       </div>
       <div class="col-3">
         <div>比分</div>
-        <div class="score">{{ users[0].fraction }} : {{ users[1].fraction }}</div>
+        <div class="score">{{ user.fraction }} : {{ opponent.fraction }}</div>
       </div>
       <div class="col-3">
         <button>认输</button>
         <button>平局</button>
-        <button @click="setIsStart(false)">退出</button>
+        <button @click="handleQuit">退出</button>
       </div>
     </div>
     <div class="item">
       <div class="user">
-        <span>{{ users[0].name }}{{ blank }}</span>
-        <Piece :data="{ value: users[0].color.value }"/>
+        <span>{{ user.name }}{{ blank }}</span>
+        <Piece :data="{ value: user.color.value }"/>
         <div v-if="countDown > 0" class="time">
           <div>局{{ blank }}时：01:00</div>
           <div>倒计时：01:00</div>
         </div>
       </div>
-      <div>轮到{{ fall.text }}下</div>
+      <div>轮到{{ fall.color.text }}下</div>
       <div class="user">
         <div v-if="countDown > 0" class="time">
           <div>局{{ blank }}时：01:00</div>
           <div>倒计时：01:00</div>
         </div>
-        <Piece :data="{ value: users[1].color.value }"/>
-        <span>{{ blank }}{{ users[1].name }}</span>
+        <Piece :data="{ value: opponent.color.value }"/>
+        <span>{{ blank }}{{ opponent.name }}</span>
       </div>
     </div>
   </div>
@@ -39,8 +39,6 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex'
-import { piece } from '../constant'
-import { cloneDeep } from '../tools'
 import Piece from './Piece.vue'
 
 export default {
@@ -52,17 +50,20 @@ export default {
     return {
       // 直接写全角空格在 template 上会报 no-irregular-whitespace，使用 eslint-disable-next-line 无效果
       blank: '　',
-      piece: cloneDeep(piece),
       roundNum: 1
     }
   },
   computed: mapState({
-    users: state => state.users,
+    user: state => state.user,
+    opponent: state => state.opponent,
     fall: state => state.fall,
     countDown: state => state.countDown
   }),
   methods: {
-    ...mapMutations(['setIsStart'])
+    ...mapMutations(['setIsStart']),
+    handleQuit () {
+      this.$router.go(-1)
+    }
   }
 }
 </script>

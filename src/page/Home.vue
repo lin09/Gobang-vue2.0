@@ -28,27 +28,24 @@ export default {
   },
   created () {
     window.home = this
-
-    this.setCountDown(0)
   },
   methods: {
-    ...mapMutations(['setOpponent', 'setUsers', 'setCountDown']),
+    ...mapMutations(['setUser', 'setOpponent', 'setMode', 'setCountDown']),
     handleOpponent (data) {
-      this.setOpponent(data)
+      this.setMode(data)
 
       if (data.value === opponent.site.value) {
-        this.setUsers([
-          {
-            name: '我',
-            color: piece.color.black,
-            fraction: 0
-          },
-          {
-            name: '你',
-            color: piece.color.white,
-            fraction: 0
-          }
-        ])
+        this.setCountDown(0)
+        this.setUser({
+          name: '我',
+          color: piece.color.black,
+          fraction: 0
+        })
+        this.setOpponent({
+          name: '你',
+          color: piece.color.white,
+          fraction: 0
+        })
       }
 
       this.$router.push('game')

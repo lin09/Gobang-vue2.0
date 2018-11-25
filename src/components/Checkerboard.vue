@@ -34,26 +34,35 @@ export default {
     }
   },
   computed: mapState({
-    fall: state => state.fall
+    fall: state => state.fall,
+    user: state => state.user,
+    opponent: state => state.opponent
   }),
   components: {
     Piece
   },
   created () {
-    this.setFall(piece.color.black)
+    this.handleFall(piece.color.black.value)
     this.initData()
   },
   methods: {
     ...mapMutations(['setFall']),
     handlePiece (data) {
-      this.baseData[data.key].value = this.fall.value
+      this.baseData[data.key].value = this.fall.color.value
 
-      if (this.fall.value === piece.color.black.value) {
+      if (this.fall.color.value === piece.color.black.value) {
         this.baseData[data.key].text = piece.color.black.text
-        this.setFall(piece.color.white)
+        this.handleFall(piece.color.white.value)
       } else {
         this.baseData[data.key].text = piece.color.white.text
-        this.setFall(piece.color.black)
+        this.handleFall(piece.color.black.value)
+      }
+    },
+    handleFall (value) {
+      if (this.user.color.value === value) {
+        this.setFall(this.user)
+      } else {
+        this.setFall(this.opponent)
       }
     },
     handleStop (event) {
