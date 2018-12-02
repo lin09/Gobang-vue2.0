@@ -1,7 +1,28 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import moment from 'moment'
 
-import { piece } from '../constant'
+import { piece, LOGS, LOG } from '../constant'
+const getLogs = () => {
+  let logs = localStorage.getItem(LOGS)
+  try {
+    logs = JSON.parse(logs) || []
+  } catch {
+    logs = []
+  }
+
+  return logs
+}
+const getLog = (id) => {
+  let log = localStorage.getItem(`${LOG}id`)
+  try {
+    log = JSON.parse(log) || {}
+  } catch {
+    log = {}
+  }
+
+  return log
+}
 
 Vue.use(Vuex)
 
@@ -20,7 +41,13 @@ export default new Vuex.Store({
     // 局数
     roundNum: 1,
     // 结束1局
-    isOver: false
+    isOver: false,
+    // 开局时间
+    date: 0,
+    // 记录列表
+    logs: [],
+    // 记录详细
+    log: {}
   },
   mutations: {
     setUser (state, user) {
@@ -39,7 +66,8 @@ export default new Vuex.Store({
       state.countDown = countDown
     },
     setRoundNum (state, roundNum) {
-      if (roundNum) {
+      if (roundNum === 1) {
+        state.date = moment().unix()
         state.roundNum = roundNum
       } else {
         state.roundNum += 1
@@ -47,6 +75,39 @@ export default new Vuex.Store({
     },
     setIsOver (state, isOver) {
       state.isOver = isOver
+
+      if (!isOver) {
+        return state
+      }
+
+      let logs = getLogs()
+
+      let log = {
+        date: state.date,
+        roundNum: state.roundNum,
+        user: {
+          ...state.user,
+          color: piece.color.black
+        },
+        opponent: {
+          ...state.opponent,
+          color: piece.color.white
+        }
+      }
+
+      if ((logs[logs.length -1] || {}).date !== state.date) {
+        logs.push(log)
+      } else {
+        logs[logs.length -1] = log
+      }
+
+      localStorage.setItem(LOGS, JSON.stringify(logs))
+    },
+    setLogs (state, logs) {
+      state.logs = logs
+    },
+    setLog (state, log) {
+      state.log = log
     }
   },
   actions: {
@@ -89,6 +150,14 @@ export default new Vuex.Store({
         color: state.opponent.color.value !== piece.color.black.value ? piece.color.black : piece.color.white
       })
       commit('setRoundNum')
+    },
+    getLogs ({ commit }) {
+      let logs = getLogs()
+      commit('setLogs', logs)
+    },
+    getLog ({ commit }, date) {
+      let log = getLog(date)
+      commit('setLog', log)
     }
   }
 })

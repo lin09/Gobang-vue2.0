@@ -1,3 +1,9 @@
+import constant from './const'
+
+export const CONSTANT = constant
+export const LOGS = constant.LOGS
+export const LOG = constant.LOG
+
 // 对手
 export const opponent = {
   site: {
@@ -42,5 +48,6 @@ export const piece = {
 
 export default {
   opponent,
-  piece
+  piece,
+  CONSTANT
 }

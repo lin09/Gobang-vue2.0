@@ -63,17 +63,20 @@ export default {
   }),
   methods: {
     ...mapActions(['defeat', 'next']),
-    ...mapMutations(['setRoundNum']),
+    ...mapMutations(['setRoundNum', 'setIsOver']),
     handleDefeat () {
+      this.setIsOver(true)
       this.defeat()
     },
     handleNext () {
       this.next()
     },
     handleAgain () {
+      this.setIsOver(true)
       this.next()
     },
     handleQuit () {
+      this.setIsOver(true)
       this.$router.go(-1)
     }
   }

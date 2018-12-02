@@ -23,6 +23,7 @@ a {
 
 .btn,
 button {
+  border: 0;
   border-radius: 4px;
   padding: 5px 10px;
   background: #fff;

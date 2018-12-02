@@ -2,6 +2,7 @@ import ErrorPage from '../page/Error'
 import Home from '../page/Home'
 import Game from '../page/Game'
 import Log from '../page/Log'
+import LogDetail from '../page/LogDetail'
 
 export default [
   {
@@ -18,6 +19,11 @@ export default [
     path: '/log',
     name: 'log',
     component: Log
+  },
+  {
+    path: '/log/:id',
+    name: 'logDetail',
+    component: LogDetail
   },
   {
     path: '*',

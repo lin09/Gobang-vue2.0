@@ -1,8 +1,8 @@
 <template>
   <div class="piece">
     <div v-if="data.value === piece.color.none.value" class="none" @click="handlePiece"></div>
-    <div v-if="data.value === piece.color.black.value" :class="data.active ? 'black acitve' : 'black'"></div>
-    <div v-if="data.value === piece.color.white.value" :class="data.active ? 'white acitve' : 'white'"></div>
+    <div v-if="data.value === piece.color.black.value" :class="data.active ? 'black acitve' : 'black'">{{ data.index }}</div>
+    <div v-if="data.value === piece.color.white.value" :class="data.active ? 'white acitve' : 'white'">{{ data.index }}</div>
   </div>
 </template>
 
@@ -51,9 +51,13 @@ export default {
   height: 40px;
 
   > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 90%;
     height: 90%;
     border-radius: 100%;
+    font-size: 16px;
   }
 
   .none {
@@ -64,14 +68,16 @@ export default {
 
   .black,
   .white {
-    box-shadow: 1px 1px 4px;
+    box-shadow: 1px 1px 4px black;
   }
 
   .black {
+    color: white;
     background: radial-gradient(farthest-corner at 10px 10px, white -60%, black 100%);
   }
 
   .white {
+    color: black;
     background: radial-gradient(farthest-corner at 10px 10px, white 0, black 150%);
   }
 
