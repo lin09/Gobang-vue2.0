@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
 import { piece } from '../constant'
 import { cloneDeep } from '../tools'
 
@@ -34,8 +35,9 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['setDownPiece']),
     handlePiece () {
-      this.$emit('handlePiece', this.data)
+      this.setDownPiece(this.data)
     }
   }
 }

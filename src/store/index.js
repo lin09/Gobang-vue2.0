@@ -1,28 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import moment from 'moment'
-
-import { piece, LOGS, LOG } from '../constant'
-const getLogs = () => {
-  let logs = localStorage.getItem(LOGS)
-  try {
-    logs = JSON.parse(logs) || []
-  } catch {
-    logs = []
-  }
-
-  return logs
-}
-const getLog = (id) => {
-  let log = localStorage.getItem(`${LOG}id`)
-  try {
-    log = JSON.parse(log) || {}
-  } catch {
-    log = {}
-  }
-
-  return log
-}
+import { piece } from '../constant'
+import log from './log'
+import { setLogs, getLogs } from './log'
 
 Vue.use(Vuex)
 
@@ -44,10 +25,8 @@ export default new Vuex.Store({
     isOver: false,
     // 开局时间
     date: 0,
-    // 记录列表
-    logs: [],
-    // 记录详细
-    log: {}
+    // 下棋子数据
+    downPiece: {}
   },
   mutations: {
     setUser (state, user) {
@@ -101,13 +80,10 @@ export default new Vuex.Store({
         logs[logs.length -1] = log
       }
 
-      localStorage.setItem(LOGS, JSON.stringify(logs))
+      setLogs(logs)
     },
-    setLogs (state, logs) {
-      state.logs = logs
-    },
-    setLog (state, log) {
-      state.log = log
+    setDownPiece (state, downPiece) {
+      state.downPiece = downPiece
     }
   },
   actions: {
@@ -150,14 +126,9 @@ export default new Vuex.Store({
         color: state.opponent.color.value !== piece.color.black.value ? piece.color.black : piece.color.white
       })
       commit('setRoundNum')
-    },
-    getLogs ({ commit }) {
-      let logs = getLogs()
-      commit('setLogs', logs)
-    },
-    getLog ({ commit }, date) {
-      let log = getLog(date)
-      commit('setLog', log)
     }
+  },
+  modules: {
+    log
   }
 })

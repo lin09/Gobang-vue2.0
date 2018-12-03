@@ -251,6 +251,8 @@ export default {
 <style lang="scss" scoped>
 .checkerboard {
   position: relative;
+  margin: 20px;
+  flex-shrink: 0;
   width: 600px;
   height: 600px;
   background-color: #E7C29C;
