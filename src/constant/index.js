@@ -1,51 +1,16 @@
 import constant from './const'
+import data from './data'
 
-export const CONSTANT = constant
-export const LOGS = constant.LOGS
-export const LOG = constant.LOG
-export const LETTER = constant.LETTER
+export const {
+  LOGS,
+  LOG
+} = constant
 
-// 对手
-export const opponent = {
-  site: {
-    value: 0,
-    text: '现场对战'
-  },
-  simpleComputer: {
-    value: 1,
-    text: '简单电脑'
-  },
-  difficultComputer: {
-    value: 2,
-    text: '困难电脑'
-  },
-  crazyComputer: {
-    value: 3,
-    text: '疯狂电脑'
-  },
-  network: {
-    value: 4,
-    text: '网络对战'
-  }
-}
-
-// 棋子
-export const piece = {
-  color: {
-    none: {
-      value: 0,
-      text: '空'
-    },
-    black: {
-      value: 1,
-      text: '黑棋'
-    },
-    white: {
-      value: 2,
-      text: '白棋'
-    }
-  }
-}
+export const {
+  letter,
+  pieceColor,
+  opponent
+} = data
 
 // 全部棋子的初始化数据
 export class piecesInitData {
@@ -60,7 +25,7 @@ export class piecesInitData {
       for (let y = 1; y < 16; y ++) {
         let key = `${ x }-${ y }`
         let item = {
-          ...piece.color.none,
+          ...pieceColor.none,
           x,
           y,
           key,
@@ -140,8 +105,9 @@ export class piecesInitData {
 }
 
 export default {
-  CONSTANT,
-  opponent,
-  piece,
+  CONSTANT: {
+    ...constant,
+    ...data
+  },
   piecesInitData
 }

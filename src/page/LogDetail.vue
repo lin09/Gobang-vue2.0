@@ -9,10 +9,8 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
 import LogInfoTool from '../components/LogInfoTool'
 import LogCheckerboard from '../components/LogCheckerboard'
-import { piece, piecesInitData } from '../constant'
 
 export default {
   name: 'logDeatil',
@@ -22,20 +20,6 @@ export default {
   },
   created () {
     window.logDetail = this
-    window.piecesInitData = piecesInitData
-    this.setUser({
-      name: '我',
-      color: piece.color.black,
-      fraction: 0
-    })
-    this.setOpponent({
-      name: '你',
-      color: piece.color.white,
-      fraction: 0
-    })
-  },
-  methods: {
-    ...mapMutations(['setUser', 'setOpponent', 'setMode', 'setDownPiece']),
   }
 }
 </script>

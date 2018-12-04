@@ -22,7 +22,8 @@ export default {
   },
   computed: {
     ...mapState({
-      downPiece: state => state.downPiece
+      downPiece: state => state.downPiece,
+      roundNum: state => state.log.roundNum
     })
   },
   watch: {
@@ -30,13 +31,21 @@ export default {
       let item = this.baseData[val.key]
       item.value = val.value
       item.index = val.index
+    },
+    roundNum () {
+      this.init()
     }
   },
   created () {
     window.lcb = this
 
-    let { baseData } = new piecesInitData()
-    this.baseData = baseData
+    this.init()
+  },
+  methods: {
+    init () {
+      let { baseData } = new piecesInitData()
+      this.baseData = baseData
+    }
   }
 }
 </script>

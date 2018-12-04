@@ -1,5 +1,5 @@
 <template>
-  <div class="info-tool">
+  <div class="info-tool" v-if="user.color">
     <div class="item">
       <div class="col-3">
         第{{ roundNum }}局
@@ -25,7 +25,7 @@
           <div>倒计时：01:00</div>
         </div>
       </div>
-      <div>{{ !isOver ? `轮到${ fall.color.text }下` : `${ fall.color.text }赢` }}</div>
+      <div>{{ !isOver ? `轮到${ fall.color.text }下` : `${ fall.color.text }${ isDefeat ? '认输' : '赢' }` }}</div>
       <div class="user">
         <div v-if="countDown > 0" class="time">
           <div>局{{ blank }}时：01:00</div>
@@ -59,13 +59,13 @@ export default {
     fall: state => state.fall,
     countDown: state => state.countDown,
     roundNum: state => state.roundNum,
-    isOver: state => state.isOver
+    isOver: state => state.isOver,
+    isDefeat: state => state.isDefeat
   }),
   methods: {
-    ...mapActions(['defeat', 'next']),
+    ...mapActions(['defeat', 'next', 'quit']),
     ...mapMutations(['setRoundNum', 'setIsOver']),
     handleDefeat () {
-      this.setIsOver(true)
       this.defeat()
     },
     handleNext () {
@@ -73,10 +73,9 @@ export default {
     },
     handleAgain () {
       this.setIsOver(true)
-      this.next()
     },
     handleQuit () {
-      this.setIsOver(true)
+      this.quit()
       this.$router.go(-1)
     }
   }

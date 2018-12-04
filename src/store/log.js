@@ -50,6 +50,8 @@ export default {
     logs: [],
     // 记录详细
     log: {},
+    // 查看第几局
+    roundNum: 1
   },
   mutations: {
     setLogs (state, logs) {
@@ -57,6 +59,9 @@ export default {
     },
     setLog (state, log) {
       state.log = log
+    },
+    setLogRoundNum (state, roundNum) {
+      state.roundNum = roundNum
     }
   },
   actions: {
@@ -75,6 +80,15 @@ export default {
       state.logs.splice(index, 1)
       setLogs(state.logs)
       commit('setLogs', state.logs)
+    },
+    delAllLog ({ commit, state }) {
+      for (let i = 0; i < state.logs.length; i ++) {
+        let delItem = state.logs[i]
+        delLog(delItem.date)
+      }
+
+      setLogs([])
+      commit('setLogs', [])
     }
   }
 }

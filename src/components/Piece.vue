@@ -1,14 +1,14 @@
 <template>
   <div class="piece">
-    <div v-if="data.value === piece.color.none.value" class="none" @click="handlePiece"></div>
-    <div v-if="data.value === piece.color.black.value" :class="data.active ? 'black acitve' : 'black'">{{ data.index }}</div>
-    <div v-if="data.value === piece.color.white.value" :class="data.active ? 'white acitve' : 'white'">{{ data.index }}</div>
+    <div v-if="data.value === pieceColor.none.value" class="none" @click="handlePiece"></div>
+    <div v-if="data.value === pieceColor.black.value" :class="data.active ? 'black acitve' : 'black'">{{ data.index }}</div>
+    <div v-if="data.value === pieceColor.white.value" :class="data.active ? 'white acitve' : 'white'">{{ data.index }}</div>
   </div>
 </template>
 
 <script>
 import { mapMutations } from 'vuex'
-import { piece } from '../constant'
+import { pieceColor } from '../constant'
 import { cloneDeep } from '../tools'
 
 export default {
@@ -19,10 +19,7 @@ export default {
       default: () => {
         return {
           // 黑子白子的值
-          value: piece.color.none.value,
-          // 坐标
-          x: 0,
-          y: 0,
+          value: pieceColor.none.value,
           // 五子相连，变更样式
           active: false
         }
@@ -31,7 +28,7 @@ export default {
   },
   data () {
     return {
-      piece: cloneDeep(piece)
+      pieceColor: cloneDeep(pieceColor)
     }
   },
   methods: {

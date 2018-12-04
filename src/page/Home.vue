@@ -15,7 +15,7 @@
 
 <script>
 import { mapMutations } from 'vuex'
-import { opponent, piece } from '../constant'
+import { opponent, pieceColor } from '../constant'
 import { cloneDeep } from '../tools'
 
 export default {
@@ -38,12 +38,12 @@ export default {
         this.setCountDown(0)
         this.setUser({
           name: '我',
-          color: piece.color.black,
+          color: pieceColor.black,
           fraction: 0
         })
         this.setOpponent({
           name: '你',
-          color: piece.color.white,
+          color: pieceColor.white,
           fraction: 0
         })
       }

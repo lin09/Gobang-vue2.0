@@ -18,8 +18,10 @@
       </div>
       <div v-show="isShowMenu" class="menu" :style="menuStyle" @mouseleave="isShowMenu = false">
         <div class="item" @click="handleDelete">删除</div>
+        <div class="item" @click="handleDeleteAll">删除全部</div>
       </div>
     </div>
+    <div class="no-data" v-if="!logs.length">没数据</div>
   </div>
 </template>
 
@@ -45,7 +47,7 @@ export default {
     this.getLogs()
   },
   methods: {
-    ...mapActions(['getLogs', 'delLog']),
+    ...mapActions(['getLogs', 'delLog', 'delAllLog']),
     handleTableMousedown (event) {
       // 右击
       if (event.which === 3) {
@@ -72,6 +74,9 @@ export default {
     handleDelete () {
       this.isShowMenu = false
       this.delLog(this.handleDelete.index)
+    },
+    handleDeleteAll () {
+      this.delAllLog()
     }
   }
 }
@@ -129,8 +134,9 @@ export default {
   box-shadow: 1px 1px 8px black;
 
   .item {
-    cursor: pointer;
     padding: 10px 20px;
+    cursor: pointer;
+    white-space: nowrap;
 
     &:hover {
       background-color: #efefef;
@@ -140,5 +146,9 @@ export default {
       border-top: 1px solid #d8d8d8;
     }
   }
+}
+
+.no-data {
+  text-align: center;
 }
 </style>

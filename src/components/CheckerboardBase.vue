@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { LETTER } from '../constant'
+import { letter } from '../constant'
 import Piece from './Piece.vue'
 
 export default {
@@ -41,7 +41,7 @@ export default {
   data () {
     return {
       // 横行线标记
-      letter: LETTER
+      letter: letter
     }
   },
   created () {

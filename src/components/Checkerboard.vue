@@ -1,12 +1,12 @@
 <template>
   <div class="checkerboard">
-    <CheckerboardBase :baseData="baseData" :isClick="isOver" />
+    <CheckerboardBase :baseData="baseData" :isClick="!isOver" />
   </div>
 </template>
 
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
-import { piece, piecesInitData } from '../constant'
+import { pieceColor, piecesInitData } from '../constant'
 import CheckerboardBase from './CheckerboardBase.vue'
 
 export default {
@@ -48,7 +48,7 @@ export default {
   },
   methods: {
     ...mapActions(['victory']),
-    ...mapMutations(['setFall', 'setRoundNum', 'setIsOver']),
+    ...mapMutations(['setFall', 'setRoundNum', 'setIsOver', 'setIsDefeat']),
     // 下棋子处理
     handlePiece (data) {
       let item = this.baseData[data.key]
@@ -56,18 +56,17 @@ export default {
 
       // 下棋子后是不是结束
       if (this.handleIsOver(item) === true) {
-        this.setIsOver(true)
         this.victory()
         return
       }
 
       // 未结束，设置轮换
-      if (this.fall.color.value === piece.color.black.value) {
-        item.text = piece.color.black.text
-        this.handleFall(piece.color.white.value)
+      if (this.fall.color.value === pieceColor.black.value) {
+        item.text = pieceColor.black.text
+        this.handleFall(pieceColor.white.value)
       } else {
-        item.text = piece.color.white.text
-        this.handleFall(piece.color.black.value)
+        item.text = pieceColor.white.text
+        this.handleFall(pieceColor.black.value)
       }
     },
     // 设置轮换
@@ -144,8 +143,9 @@ export default {
     // 初始化
     initData () {
       // 黑子先手
-      this.handleFall(piece.color.black.value)
+      this.handleFall(pieceColor.black.value)
       this.setIsOver(false)
+      this.setIsDefeat(false)
 
       let { baseData, countData } = new piecesInitData()
       this.baseData = baseData
