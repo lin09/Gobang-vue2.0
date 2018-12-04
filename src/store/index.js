@@ -1,8 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import moment from 'moment'
 import { pieceColor } from '../constant'
-import { pick } from '../tools'
+import { pick, date } from '../tools'
 import log from './log'
 import { setLogs, getLogs, getLog, setLog } from './log'
 
@@ -27,7 +26,7 @@ export default new Vuex.Store({
     // 认输
     isDefeat: false,
     // 开始时间
-    date: 0,
+    startDate: 0,
     // 当前局开始时间
     currentDate: 0,
     // 下棋子数据
@@ -44,12 +43,12 @@ export default new Vuex.Store({
         let logs = getLogs()
         let correntlog = logs[logs.length -1] || {}
         // 已记录
-        if (correntlog.date === state.date) {
+        if (correntlog.date === state.startDate) {
           correntlog.user = pick(user, ['name', 'fraction'])
           setLogs(logs)
 
           // 更新详情
-          let logDetail = getLog(state.date) || {}
+          let logDetail = getLog(state.startDate) || {}
           logDetail.user = user
           setLog(logDetail)
         }
@@ -63,12 +62,12 @@ export default new Vuex.Store({
         let logs = getLogs()
         let correntlog = logs[logs.length -1] || {}
         // 已记录
-        if (correntlog.date === state.date) {
+        if (correntlog.date === state.startDate) {
           correntlog.opponent = pick(opponent, ['name', 'fraction'])
           setLogs(logs)
 
           // 更新详情
-          let logDetail = getLog(state.date) || {}
+          let logDetail = getLog(state.startDate) || {}
           logDetail.opponent = opponent
           setLog(logDetail)
         }
@@ -84,11 +83,12 @@ export default new Vuex.Store({
       state.countDown = countDown
     },
     setRoundNum (state, roundNum) {
-      let date = moment().unix()
-      state.currentDate = date
+      let startDate = date().unix()
+      state.currentDate = startDate
+      state.logPieces = []
 
       if (roundNum === 1) {
-        state.date = date
+        state.startDate = startDate
         state.roundNum = roundNum
       } else {
         state.roundNum += 1
@@ -109,13 +109,13 @@ export default new Vuex.Store({
       let logs = getLogs()
 
       let log = {
-        date: state.date,
+        date: state.startDate,
         roundNum: state.roundNum,
         user: pick(state.user, ['name', 'fraction']),
         opponent: pick(state.opponent, ['name', 'fraction'])
       }
 
-      if ((logs[logs.length -1] || {}).date !== state.date) {
+      if ((logs[logs.length -1] || {}).date !== state.startDate) {
         logs.push(log)
       } else {
         logs[logs.length -1] = log
@@ -124,10 +124,10 @@ export default new Vuex.Store({
       setLogs(logs)
 
       // 记录详情
-      let logDetail = getLog(state.date)
+      let logDetail = getLog(state.startDate)
       setLog({
         ...logDetail,
-        date: state.date,
+        date: state.startDate,
         user: state.user,
         opponent: state.opponent,
         list: [
@@ -137,7 +137,7 @@ export default new Vuex.Store({
             user: state.user,
             opponent: state.opponent,
             startDate: state.currentDate,
-            endDate: moment().unix(),
+            endDate: date().unix(),
             pieces: state.logPieces,
             isDefeat: state.isDefeat
           }
@@ -151,7 +151,7 @@ export default new Vuex.Store({
 
       if (!downPiece.isLog) {
         state.logPieces.push({
-          date: moment().unix(),
+          date: date().unix(),
           x: downPiece.x,
           y: downPiece.y
         })

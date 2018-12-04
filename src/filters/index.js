@@ -1,4 +1,4 @@
-import moment from 'moment'
+import { date } from '../tools'
 import datas from '../constant/data'
 
 let funs = {}
@@ -29,7 +29,7 @@ for (const key in datas) {
 
 export default {
   ...funs,
-  dateFormat: (value, format = 'YYYY-MM-DD h:mm:ss') => {
-    return value ? moment.unix(value).format(format) : value
+  dateFormat: (value, format) => {
+    return value ? date.unix(value).format(format) : value
   }
 }
