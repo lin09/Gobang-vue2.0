@@ -42,6 +42,6 @@ button {
   text-align: center;
   color: #2c3e50;
   margin: 60px auto;
-  width: 600px;
+  width: 640px;
 }
 </style>

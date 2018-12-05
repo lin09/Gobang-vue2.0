@@ -167,10 +167,11 @@ export default {
       if (this.fraction === fraction) {
         text = '平局'
       } else {
-        let color = this.pieceIndex % 2 ? pieceColor.white : pieceColor.black
         if (!this.detail.isDefeat) {
+          let color = this.pieceIndex % 2 ? pieceColor.black : pieceColor.white
           text = color.text + '赢'
         } else {
+          let color = this.pieceIndex % 2 ? pieceColor.white : pieceColor.black
           text = color.text + '认输'
         }
       }

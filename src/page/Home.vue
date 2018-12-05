@@ -10,6 +10,13 @@
       </button>
       <router-link class="btn" to="/log">对战记录</router-link>
     </div>
+
+    <Modal v-model="showModal" title="设置信息" okText='确认' @ok="goGage">
+      <cForm ref="form" @submit="goGage" :formData="formData" :rules="rules">
+        <FormGroup v-model="formData.userName" label="黑棋：" placeholder="玩家名字" />
+        <FormGroup v-model="formData.opponentName" label="白棋：" placeholder="玩家名字" />
+      </cForm>
+    </Modal>
   </div>
 </template>
 
@@ -17,13 +24,34 @@
 import { mapMutations } from 'vuex'
 import { opponent, pieceColor } from '../constant'
 import { cloneDeep } from '../tools'
+import Modal from '../components/Modal'
+import FormGroup from '../components/FormGroup'
+import cForm from '../components/Form'
 
 export default {
   name: 'home',
+  components: {
+    Modal,
+    FormGroup,
+    cForm
+  },
   data () {
     return {
       opponent: cloneDeep(opponent),
-      active: [opponent.site.value]
+      active: [opponent.site.value],
+      showModal: false,
+      formData: {
+        userName: '我',
+        opponentName: '你'
+      },
+      rules: {
+        userName: [
+          { required: true, message: '黑棋玩家名字不能为空' }
+        ],
+        opponentName: [
+          { required: true, message: '白棋玩家名字不能为空' }
+        ]
+      }
     }
   },
   created () {
@@ -35,18 +63,25 @@ export default {
       this.setMode(data)
 
       if (data.value === opponent.site.value) {
-        this.setCountDown(0)
-        this.setUser({
-          name: '我',
-          color: pieceColor.black,
-          fraction: 0
-        })
-        this.setOpponent({
-          name: '你',
-          color: pieceColor.white,
-          fraction: 0
-        })
+        this.showModal = true
       }
+    },
+    goGage () {
+      if (!this.$refs['form'].validate()) {
+        return
+      }
+
+      this.setCountDown(0)
+      this.setUser({
+        name: this.formData.userName,
+        color: pieceColor.black,
+        fraction: 0
+      })
+      this.setOpponent({
+        name: this.formData.opponentName,
+        color: pieceColor.white,
+        fraction: 0
+      })
 
       this.$router.push('game')
     }

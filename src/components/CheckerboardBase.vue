@@ -1,17 +1,19 @@
 <template>
-  <div class="checkerboard" @click.capture="handleStop">
-    <div class="line-row"></div>
-    <div class="line-col"></div>
-    <div class="star"></div>
-    <div class="num">
-      <div v-for="n in 15" :key="n">{{ n }}</div>
-    </div>
-    <div class="letter">
-      <div v-for="n in letter" :key="n">{{ n }}</div>
-    </div>
-    <div class="pieces">
-      <div class="row" v-for="y in 15" :key="y">
-        <Piece v-for="x in 15" :key="x" :data="baseData[`${ x }-${ y }`]" @handlePiece="handlePiece" />
+  <div class="content">
+    <div class="checkerboard" @click.capture="handleStop">
+      <div class="line-row"></div>
+      <div class="line-col"></div>
+      <div class="star"></div>
+      <div class="num">
+        <div v-for="n in 15" :key="n">{{ n }}</div>
+      </div>
+      <div class="letter">
+        <div v-for="n in letter" :key="n">{{ n }}</div>
+      </div>
+      <div class="pieces">
+        <div class="row" v-for="y in 15" :key="y">
+          <Piece v-for="x in 15" :key="x" :data="baseData[`${ x }-${ y }`]" @handlePiece="handlePiece" />
+        </div>
       </div>
     </div>
   </div>
@@ -63,9 +65,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.content {
+  padding: 20px;
+  width: 640px;
+  height: 640px;
+}
+
 .checkerboard {
   position: relative;
-  margin: 20px;
   flex-shrink: 0;
   width: 600px;
   height: 600px;
