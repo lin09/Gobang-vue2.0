@@ -3,7 +3,9 @@ import data from './data'
 
 export const {
   LOGS,
-  LOG
+  LOG,
+  USER_NAME,
+  OPPONENT_NAME
 } = constant
 
 export const {

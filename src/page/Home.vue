@@ -22,7 +22,7 @@
 
 <script>
 import { mapMutations } from 'vuex'
-import { opponent, pieceColor } from '../constant'
+import { opponent, pieceColor, USER_NAME, OPPONENT_NAME } from '../constant'
 import { cloneDeep } from '../tools'
 import Modal from '../components/Modal'
 import FormGroup from '../components/FormGroup'
@@ -41,8 +41,8 @@ export default {
       active: [opponent.site.value],
       showModal: false,
       formData: {
-        userName: '我',
-        opponentName: '你'
+        userName: localStorage.getItem(USER_NAME) || '我',
+        opponentName: localStorage.getItem(OPPONENT_NAME) || '你'
       },
       rules: {
         userName: [
@@ -70,6 +70,9 @@ export default {
       if (!this.$refs['form'].validate()) {
         return
       }
+
+      localStorage.setItem(USER_NAME, this.formData.userName)
+      localStorage.setItem(OPPONENT_NAME, this.formData.opponentName)
 
       this.setCountDown(0)
       this.setUser({
