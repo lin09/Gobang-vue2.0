@@ -1,6 +1,6 @@
 export default {
   // localStorage Key ，记录列表
-  LOGS: 'logs',
-  // localStorage Key ，记录 `log${时间戳}`
-  LOG: 'log'
+  LOGS: 'gobangLogs',
+  // localStorage Key ，记录 `gobangLog${时间戳}`
+  LOG: 'gobangLog'
 }
