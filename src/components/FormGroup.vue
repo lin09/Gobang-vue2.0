@@ -1,7 +1,26 @@
 <template>
   <div class="form-group">
     <div class="label">{{ label }}</div>
-    <input v-model="model" :type="type" :disabled="disabled" :placeholder="placeholder" @change="handleChange" >
+    <input
+      v-if="!values"
+      v-model="model"
+      :type="type"
+      :disabled="disabled"
+      :placeholder="placeholder"
+      :max="max"
+      :min="min"
+      @change="handleChange">
+
+    <label v-else-if="values.length" v-for="(item, index) in values" :key="index">
+      <input
+        v-model="model"
+        :type="type"
+        :disabled="disabled"
+        @change="handleChange"
+        :placeholder="placeholder"
+        :value="item.value"
+        :checked="item.value === model">{{ item.text }}
+    </label>
   </div>
 </template>
 
@@ -25,6 +44,15 @@ export default {
     },
     placeholder: {
       type: String
+    },
+    values: {
+      type: Array
+    },
+    max: {
+      type: Number
+    },
+    min: {
+      type: Number
     }
     // 可添加其它属性
   },
@@ -56,10 +84,16 @@ export default {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    flex-shrink: 0;
   }
 
-  // > input[type=password],  可以添加更多类型
-  > input[type=text] {
+  label + label {
+    margin-left: 20px;
+  }
+
+  // input[type=password],  可以添加更多类型
+  input[type=number],
+  input[type=text] {
     display: flex;
     align-items: center;
     flex-grow: 1;

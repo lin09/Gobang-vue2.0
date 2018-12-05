@@ -31,11 +31,13 @@ export default {
           // 检查是否为空
           if (ruleItem.required === true) {
             if (!this.formData[key] || this.formData[key] === '') {
-              this.message = ruleItem.message
-              // 回调
-              typeof callBack === 'function' && callBack(false)
-              return false
+              return this.callBack(ruleItem.message, callBack)
             }
+          }
+
+          // 正则
+          if (ruleItem.rgx && RegExp(ruleItem.rgx).test(this.formData[key]) === false) {
+            return this.callBack(ruleItem.message, callBack)
           }
 
           // 检查其它，以后添加
@@ -45,6 +47,12 @@ export default {
       // 回调
       typeof callBack === 'function' && callBack(true)
       return true
+    },
+    callBack(message, callBack) {
+      this.message = message
+      // 回调
+      typeof callBack === 'function' && callBack(false)
+      return false
     }
   }
 }
