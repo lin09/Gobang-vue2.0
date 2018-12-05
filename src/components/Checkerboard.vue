@@ -26,13 +26,13 @@ export default {
     fall: state => state.fall,
     user: state => state.user,
     opponent: state => state.opponent,
-    roundNum: state => state.roundNum,
     isOver: state => state.isOver,
-    downPiece: state => state.downPiece
+    downPiece: state => state.downPiece,
+    countDown: state => state.countDown
   }),
   watch: {
-    roundNum () {
-      this.initData()
+    isOver (val) {
+      !val && this.initData()
     },
     downPiece (val) {
       this.handlePiece(val)
@@ -41,14 +41,11 @@ export default {
   created () {
     window.cb = this
 
-    // 初始化局数
-    this.setRoundNum(1)
-    // 初始化数据
-    this.initData()
+    !this.countDown && this.setIsOver(false)
   },
   methods: {
     ...mapActions(['victory']),
-    ...mapMutations(['setFall', 'setRoundNum', 'setIsOver', 'setIsDefeat']),
+    ...mapMutations(['setFall', 'setIsOver', 'setRoundNum']),
     // 下棋子处理
     handlePiece (data) {
       let item = this.baseData[data.key]
@@ -144,8 +141,7 @@ export default {
     initData () {
       // 黑子先手
       this.handleFall(pieceColor.black.value)
-      this.setIsOver(false)
-      this.setIsDefeat(false)
+      this.setRoundNum()
 
       let { baseData, countData } = new piecesInitData()
       this.baseData = baseData

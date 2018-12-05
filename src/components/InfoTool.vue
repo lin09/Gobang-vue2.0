@@ -2,9 +2,9 @@
   <div class="info-tool" v-if="user.color">
     <div class="item">
       <div class="col-3">
-        第{{ roundNum }}局
-        <button v-show="countDown > 0 && isOver">开始</button>
-        <button v-show="countDown === 0 && isOver" @click="handleNext">下一局</button>
+        <span v-show="roundNum > 0">第{{ roundNum }}局</span>
+        <button v-show="countDown > 0 && roundNum === 0" @click="handleStart">开始</button>
+        <button v-show="roundNum > 0 && isOver" @click="handleNext">下一局</button>
       </div>
       <div class="col-3">
         <div>比分</div>
@@ -62,9 +62,15 @@ export default {
     isOver: state => state.isOver,
     isDefeat: state => state.isDefeat
   }),
+  mounted () {
+    !this.countDown && this.setIsOver(false)
+  },
   methods: {
-    ...mapActions(['defeat', 'next', 'quit']),
-    ...mapMutations(['setRoundNum', 'setIsOver']),
+    ...mapActions(['defeat', 'next']),
+    ...mapMutations(['setIsOver']),
+    handleStart () {
+      this.setIsOver(false)
+    },
     handleDefeat () {
       this.defeat()
     },
@@ -75,7 +81,6 @@ export default {
       this.setIsOver(true)
     },
     handleQuit () {
-      this.quit()
       this.$router.go(-1)
     }
   }

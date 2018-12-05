@@ -1,39 +1,41 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { pieceColor } from '../constant'
-import { pick, date } from '../tools'
+import { pick, date, cloneDeep } from '../tools'
 import log from './log'
 import { setLogs, getLogs, getLog, setLog } from './log'
 
 Vue.use(Vuex)
 
+const defaultState = {
+  // 玩家
+  user: {},
+  // 对手
+  opponent: {},
+  // 比赛模式，选择对手是电脑、网友
+  mode: {},
+  // 轮到谁下
+  fall: { color: {} },
+  // 倒计时
+  countDown: 0,
+  // 局数
+  roundNum: 0,
+  // 结束1局
+  isOver: true,
+  // 认输
+  isDefeat: false,
+  // 开始时间
+  startDate: 0,
+  // 当前局开始时间
+  currentDate: 0,
+  // 下棋子数据
+  downPiece: {},
+  // 下棋子坐标记录
+  logPieces: []
+}
+
 export default new Vuex.Store({
-  state: {
-    // 玩家
-    user: {},
-    // 对手
-    opponent: {},
-    // 比赛模式，选择对手是电脑、网友
-    mode: {},
-    // 轮到谁下
-    fall: { color: {} },
-    // 倒计时
-    countDown: 0,
-    // 局数
-    roundNum: 1,
-    // 结束1局
-    isOver: false,
-    // 认输
-    isDefeat: false,
-    // 开始时间
-    startDate: 0,
-    // 当前局开始时间
-    currentDate: 0,
-    // 下棋子数据
-    downPiece: {},
-    // 下棋子坐标记录
-    logPieces: []
-  },
+  state: cloneDeep(defaultState),
   mutations: {
     setUser (state, user) {
       state.user = user
@@ -82,16 +84,15 @@ export default new Vuex.Store({
     setCountDown (state, countDown) {
       state.countDown = countDown
     },
-    setRoundNum (state, roundNum) {
+    setRoundNum (state) {
       let startDate = date().unix()
       state.currentDate = startDate
+      state.isDefeat = false
       state.logPieces = []
+      state.roundNum ++
 
-      if (roundNum === 1) {
+      if (state.roundNum === 1) {
         state.startDate = startDate
-        state.roundNum = roundNum
-      } else {
-        state.roundNum += 1
       }
     },
     setIsDefeat (state, isDefeat) {
@@ -156,6 +157,12 @@ export default new Vuex.Store({
           y: downPiece.y
         })
       }
+    },
+    reset (state) {
+      let dState = cloneDeep(defaultState)
+      for (const key in dState) {
+        state[key] = dState[key]
+      }
     }
   },
   actions: {
@@ -200,12 +207,7 @@ export default new Vuex.Store({
         ...state.opponent,
         color: state.opponent.color.value !== pieceColor.black.value ? pieceColor.black : pieceColor.white
       })
-      commit('setRoundNum')
-    },
-    // 退出
-    quit ({ commit }) {
-      commit('setUser', {})
-      commit('setOpponent', {})
+      commit('setIsOver', false)
     }
   },
   modules: {
