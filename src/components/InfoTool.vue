@@ -12,7 +12,7 @@
       </div>
       <div class="col-3">
         <button @click="handleDefeat" :disabled="isOver">认输</button>
-        <button @click="handleAgain" :disabled="isOver">平局</button>
+        <button @click="handleDraw" :disabled="isOver">平局</button>
         <button @click="handleQuit">退出</button>
       </div>
     </div>
@@ -25,7 +25,8 @@
           <div>倒计时：01:00</div>
         </div>
       </div>
-      <div>{{ !isOver ? `轮到${ fall.color.text }下` : `${ fall.color.text }${ isDefeat ? '认输' : '赢' }` }}</div>
+      <div v-if="isDraw">平局</div>
+      <div v-if="fall.color && !isDraw">{{ !isOver ? `轮到${ fall.color.text }下` : `${ fall.color.text }${ isDefeat ? '认输' : '赢' }` }}</div>
       <div class="user">
         <div v-if="countDown > 0" class="time">
           <div>局{{ blank }}时：01:00</div>
@@ -39,7 +40,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
 import Piece from './Piece.vue'
 
 export default {
@@ -60,16 +61,13 @@ export default {
     countDown: state => state.countDown,
     roundNum: state => state.roundNum,
     isOver: state => state.isOver,
-    isDefeat: state => state.isDefeat
+    isDefeat: state => state.isDefeat,
+    isDraw: state => state.isDraw
   }),
-  mounted () {
-    !this.countDown && this.setIsOver(false)
-  },
   methods: {
-    ...mapActions(['defeat', 'next']),
-    ...mapMutations(['setIsOver']),
+    ...mapActions(['defeat', 'next', 'start', 'draw']),
     handleStart () {
-      this.setIsOver(false)
+      this.start()
     },
     handleDefeat () {
       this.defeat()
@@ -77,8 +75,8 @@ export default {
     handleNext () {
       this.next()
     },
-    handleAgain () {
-      this.setIsOver(true)
+    handleDraw () {
+      this.draw()
     },
     handleQuit () {
       this.$router.go(-1)

@@ -1,6 +1,6 @@
 <template>
   <div class="checkerboard">
-    <CheckerboardBase :baseData="baseData" :isClick="!isOver" />
+    <CheckerboardBase :baseData="baseData" />
   </div>
 </template>
 
@@ -26,13 +26,13 @@ export default {
     fall: state => state.fall,
     user: state => state.user,
     opponent: state => state.opponent,
-    isOver: state => state.isOver,
     downPiece: state => state.downPiece,
+    roundNum: state => state.roundNum,
     countDown: state => state.countDown
   }),
   watch: {
-    isOver (val) {
-      !val && this.initData()
+    roundNum () {
+      this.initData()
     },
     downPiece (val) {
       this.handlePiece(val)
@@ -41,11 +41,12 @@ export default {
   created () {
     window.cb = this
 
-    !this.countDown && this.setIsOver(false)
+    // 无计时，直接开始
+    !this.countDown && this.start()
   },
   methods: {
-    ...mapActions(['victory']),
-    ...mapMutations(['setFall', 'setIsOver', 'setRoundNum']),
+    ...mapActions(['victory', 'start']),
+    ...mapMutations(['setFall']),
     // 下棋子处理
     handlePiece (data) {
       let item = this.baseData[data.key]
@@ -72,12 +73,6 @@ export default {
         this.setFall(this.user)
       } else {
         this.setFall(this.opponent)
-      }
-    },
-    // 结束，不能点击
-    handleStop (event) {
-      if (this.isOver) {
-        event.stopPropagation && event.stopPropagation();
       }
     },
     // 检查是否是五子相连
@@ -141,7 +136,6 @@ export default {
     initData () {
       // 黑子先手
       this.handleFall(pieceColor.black.value)
-      this.setRoundNum()
 
       let { baseData, countData } = new piecesInitData()
       this.baseData = baseData

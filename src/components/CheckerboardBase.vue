@@ -1,18 +1,18 @@
 <template>
   <div class="content">
-    <div class="checkerboard" @click.capture="handleStop">
+    <div class="checkerboard">
       <div class="line-row"></div>
       <div class="line-col"></div>
-      <div class="star"></div>
+      <div class="spot"></div>
       <div class="num">
         <div v-for="n in 15" :key="n">{{ n }}</div>
       </div>
       <div class="letter">
-        <div v-for="n in letter" :key="n">{{ n }}</div>
+        <div v-for="n in 15" :key="n">{{ n - 1 | letter }}</div>
       </div>
       <div class="pieces">
         <div class="row" v-for="y in 15" :key="y">
-          <Piece v-for="x in 15" :key="x" :data="baseData[`${ x }-${ y }`]" @handlePiece="handlePiece" />
+          <Piece v-for="x in 15" :key="x" :data="baseData[`${ x }-${ y }`]" />
         </div>
       </div>
     </div>
@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import { letter } from '../constant'
 import Piece from './Piece.vue'
 
 export default {
@@ -31,35 +30,10 @@ export default {
       default: () => {
         return {}
       }
-    },
-    isClick: {
-      type: Boolean,
-      default: true
     }
   },
   components: {
     Piece
-  },
-  data () {
-    return {
-      // 横行线标记
-      letter: letter
-    }
-  },
-  created () {
-    window.cbb = this
-  },
-  methods: {
-    handleStop (event) {
-      if (!this.isClick) {
-        event.stopPropagation && event.stopPropagation();
-      }
-    },
-    handlePiece (data) {
-      if (this.isClick) {
-        this.$emit('handlePiece', data)
-      }
-    }
   }
 }
 </script>
@@ -81,6 +55,7 @@ export default {
   box-shadow: 3px 3px 12px;
 }
 
+// 横线
 .line-row{
   position: absolute;
   top: 0;
@@ -90,6 +65,7 @@ export default {
   box-shadow: 20px 20px, 20px 60px, 20px 100px, 20px 140px, 20px 180px, 20px 220px, 20px 260px, 20px 300px, 20px 340px, 20px 380px, 20px 420px, 20px 460px, 20px 500px, 20px 540px, 20px 580px;
 }
 
+// 列线
 .line-col{
   position: absolute;
   top: 0;
@@ -99,7 +75,8 @@ export default {
   box-shadow: 20px 20px, 60px 20px, 100px 20px, 140px 20px, 180px 20px, 220px 20px, 260px 20px, 300px 20px, 340px 20px, 380px 20px, 420px 20px, 460px 20px, 500px 20px, 540px 20px, 580px 20px;
 }
 
-.star {
+// 5个点
+.spot {
   position: absolute;
   top: 137px;
   left: 137px;
@@ -109,6 +86,7 @@ export default {
   box-shadow: 320px 0, 160px 160px, 320px 320px, 0 320px;
 }
 
+// 左边数字
 .num {
   position: absolute;
   top: 0;
@@ -121,6 +99,7 @@ export default {
   height: 100%;
 }
 
+// 上边字母
 .letter {
   position: absolute;
   top: -20px;
@@ -132,6 +111,7 @@ export default {
   height: 20px;
 }
 
+// 全部棋子
 .pieces {
   position: absolute;
   top: 0;

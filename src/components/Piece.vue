@@ -1,13 +1,13 @@
 <template>
   <div class="piece">
-    <div v-if="data.value === pieceColor.none.value" class="none" @click="handlePiece"></div>
+    <div v-if="!isOver && data.value === pieceColor.none.value" class="none" @click="handlePiece"></div>
     <div v-if="data.value === pieceColor.black.value" :class="data.active ? 'black acitve' : 'black'">{{ data.index }}</div>
     <div v-if="data.value === pieceColor.white.value" :class="data.active ? 'white acitve' : 'white'">{{ data.index }}</div>
   </div>
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import { pieceColor } from '../constant'
 import { cloneDeep } from '../tools'
 
@@ -31,6 +31,9 @@ export default {
       pieceColor: cloneDeep(pieceColor)
     }
   },
+  computed: mapState({
+    isOver: state => state.isOver
+  }),
   methods: {
     ...mapMutations(['setDownPiece']),
     handlePiece () {

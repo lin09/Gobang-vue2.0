@@ -15,7 +15,7 @@ const defaultState = {
   // 比赛模式，选择对手是电脑、网友
   mode: {},
   // 轮到谁下
-  fall: { color: {} },
+  fall: {},
   // 倒计时
   countDown: 0,
   // 局数
@@ -24,6 +24,8 @@ const defaultState = {
   isOver: true,
   // 认输
   isDefeat: false,
+  // 打平
+  isDraw: false,
   // 开始时间
   startDate: 0,
   // 当前局开始时间
@@ -84,10 +86,11 @@ export default new Vuex.Store({
     setCountDown (state, countDown) {
       state.countDown = countDown
     },
-    setRoundNum (state) {
+    incrementRoundNum (state) {
       let startDate = date().unix()
       state.currentDate = startDate
       state.isDefeat = false
+      state.isDraw = false
       state.logPieces = []
       state.roundNum ++
 
@@ -98,54 +101,53 @@ export default new Vuex.Store({
     setIsDefeat (state, isDefeat) {
       state.isDefeat = isDefeat
     },
+    setIsDraw (state, isDraw) {
+      state.isDraw = isDraw
+    },
     setIsOver (state, isOver) {
       state.isOver = isOver
 
-      if (!isOver) {
-        return state
+      if (isOver === true) {
+        // 结束一局，保存记录
+        // 记录列表
+        let logs = getLogs()
+
+        let log = {
+          date: state.startDate,
+          roundNum: state.roundNum,
+          user: pick(state.user, ['name', 'fraction']),
+          opponent: pick(state.opponent, ['name', 'fraction'])
+        }
+
+        if ((logs[logs.length -1] || {}).date !== state.startDate) {
+          logs.push(log)
+        } else {
+          logs[logs.length -1] = log
+        }
+
+        setLogs(logs)
+
+        // 记录详情
+        let logDetail = getLog(state.startDate)
+        setLog({
+          ...logDetail,
+          date: state.startDate,
+          user: state.user,
+          opponent: state.opponent,
+          list: [
+            ...(logDetail.list || []),
+            {
+              roundNum: state.roundNum,
+              user: state.user,
+              opponent: state.opponent,
+              startDate: state.currentDate,
+              endDate: date().unix(),
+              pieces: state.logPieces,
+              isDefeat: state.isDefeat
+            }
+          ]
+        })
       }
-
-      // 结束一局，保存记录
-      // 记录列表
-      let logs = getLogs()
-
-      let log = {
-        date: state.startDate,
-        roundNum: state.roundNum,
-        user: pick(state.user, ['name', 'fraction']),
-        opponent: pick(state.opponent, ['name', 'fraction'])
-      }
-
-      if ((logs[logs.length -1] || {}).date !== state.startDate) {
-        logs.push(log)
-      } else {
-        logs[logs.length -1] = log
-      }
-
-      setLogs(logs)
-
-      // 记录详情
-      let logDetail = getLog(state.startDate)
-      setLog({
-        ...logDetail,
-        date: state.startDate,
-        user: state.user,
-        opponent: state.opponent,
-        list: [
-          ...(logDetail.list || []),
-          {
-            roundNum: state.roundNum,
-            user: state.user,
-            opponent: state.opponent,
-            startDate: state.currentDate,
-            endDate: date().unix(),
-            pieces: state.logPieces,
-            isDefeat: state.isDefeat
-          }
-        ]
-      })
-
-      state.logPieces = []
     },
     setDownPiece (state, downPiece) {
       state.downPiece = downPiece
@@ -158,6 +160,7 @@ export default new Vuex.Store({
         })
       }
     },
+    // 重置数据
     reset (state) {
       let dState = cloneDeep(defaultState)
       for (const key in dState) {
@@ -166,6 +169,11 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    // 开始
+    start ({ commit }) {
+      commit('incrementRoundNum')
+      commit('setIsOver', false)
+    },
     // 认输
     defeat ({ commit, state }) {
       commit('setIsDefeat', true)
@@ -197,6 +205,11 @@ export default new Vuex.Store({
         })
       }
     },
+    // 打平
+    draw ({ commit }) {
+      commit('setIsOver', true)
+      commit('setIsDraw', true)
+    },
     // 下一局
     next ({ commit, state }) {
       commit('setUser', {
@@ -207,6 +220,7 @@ export default new Vuex.Store({
         ...state.opponent,
         color: state.opponent.color.value !== pieceColor.black.value ? pieceColor.black : pieceColor.white
       })
+      commit('incrementRoundNum')
       commit('setIsOver', false)
     }
   },

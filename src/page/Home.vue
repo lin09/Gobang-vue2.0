@@ -45,10 +45,12 @@ export default {
   },
   data () {
     return {
+      // 全部对手
       opponent: cloneDeep(opponent),
       pieceColor: cloneDeep(pieceColor),
+      // 可选择对手
       active: [opponent.site.value, opponent.simpleComputer.value],
-      showSiteModal: false,
+      // 全部正则，在 created 再组装
       rules: {
         userName: [
           { required: true, message: '黑棋玩家名字不能为空' }
@@ -63,12 +65,17 @@ export default {
           { rgx: `^([0-9]+)$`, message: '倒计时为正整数' }
         ]
       },
+
+      // 现场数据
+      showSiteModal: false,
       siteFormData: {
         userName: localStorage.getItem(USER_NAME) || '我',
         opponentName: localStorage.getItem(OPPONENT_NAME) || '你',
         countDown: 0
       },
       siteRules: [],
+
+      // 选择电脑数据
       showComputerModal: false,
       computerFormData: {
         userName: localStorage.getItem(USER_NAME) || '我',
@@ -89,6 +96,7 @@ export default {
   },
   methods: {
     ...mapMutations(['setUser', 'setOpponent', 'setMode', 'setCountDown', 'reset']),
+    // 选择
     handleOpponent (data) {
       this.setMode(data)
 
@@ -98,15 +106,20 @@ export default {
         this.showComputerModal = true
       }
     },
+    // 现在对局
     goGage () {
+      // 验证表单
       if (!this.$refs['siteForm'].validate()) {
         return
       }
 
+      // 保存信息
       localStorage.setItem(USER_NAME, this.siteFormData.userName)
       localStorage.setItem(OPPONENT_NAME, this.siteFormData.opponentName)
 
+      // 倒计时
       this.setCountDown(this.siteFormData.countDown)
+      // 更新玩家
       this.setUser({
         name: this.siteFormData.userName,
         color: pieceColor.black,
@@ -120,14 +133,19 @@ export default {
 
       this.$router.push('game')
     },
+    // 选择电脑
     goComputer () {
+      // 验证表单
       if (!this.$refs['computerForm'].validate()) {
         return
       }
 
+      // 保存信息
       localStorage.setItem(USER_NAME, this.computerFormData.userName)
 
+      // 倒计时
       this.setCountDown(this.computerFormData.countDown)
+      // 更新玩家
       this.setUser({
         name: this.computerFormData.userName,
         color: this.computerFormData.selectedColor === pieceColor.black.value ? pieceColor.black : pieceColor.white,
