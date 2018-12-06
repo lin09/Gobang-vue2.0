@@ -50,7 +50,7 @@ export default {
     // 下棋子处理
     handlePiece (data) {
       let item = this.baseData[data.key]
-      item.value = this.fall.color.value
+      item.value = this.fall
 
       // 下棋子后是不是结束
       if (this.handleIsOver(item) === true) {
@@ -59,20 +59,15 @@ export default {
       }
 
       // 未结束，设置轮换
-      if (this.fall.color.value === pieceColor.black.value) {
+      if (this.fall === pieceColor.black.value) {
+        // 当前下黑子
+        // 棋子设为黑色
         item.text = pieceColor.black.text
-        this.handleFall(pieceColor.white.value)
+        // 切换到白色下
+        this.setFall(pieceColor.white.value)
       } else {
         item.text = pieceColor.white.text
-        this.handleFall(pieceColor.black.value)
-      }
-    },
-    // 设置轮换
-    handleFall (value) {
-      if (this.user.color.value === value) {
-        this.setFall(this.user)
-      } else {
-        this.setFall(this.opponent)
+        this.setFall(pieceColor.black.value)
       }
     },
     // 检查是否是五子相连
@@ -124,7 +119,7 @@ export default {
       let connections = []
       for (let i in itemKeys) {
         let item = this.baseData[itemKeys[i]]
-        if (item.value === this.fall.color.value) {
+        if (item.value === this.fall) {
           connections.push(item)
         } else {
           break
@@ -135,7 +130,7 @@ export default {
     // 初始化
     initData () {
       // 黑子先手
-      this.handleFall(pieceColor.black.value)
+      this.setFall(pieceColor.black.value)
 
       let { baseData, countData } = new piecesInitData()
       this.baseData = baseData

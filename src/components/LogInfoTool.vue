@@ -18,6 +18,7 @@
       <Piece :data="{ value: detail.opponent.color.value }"/>
       <span>{{ blank }}{{ detail.opponent.name }}</span>
     </div>
+    <div v-if="logDetail.countDown" class="item">倒计时：{{ logDetail.countDown | time }}</div>
     <div class="log">
       <div v-for="(item, index) in logTexts" :key="index">
         <span class="time">{{ item.date | dateFormat('h:mm:ss') }}</span>{{ item.text }}
@@ -147,12 +148,12 @@ export default {
 
       // 结束
       if (this.pieceIndex === this.detail.pieces.length) {
-        this.handleEnd()
+        this.handleEnd(piece)
       }
-
     },
-    handleEnd () {
-      let fraction, text, user, opponent
+    handleEnd (endPiece) {
+      let fraction, user, opponent
+      let text = '结束，'
       // 结束后，比分更新为下一局，无下一局读最终比赛结果数据
       if (this.detail.roundNum < this.logDetail.list.length) {
         let nextRound = this.logDetail.list[this.detail.roundNum]
@@ -165,20 +166,30 @@ export default {
       fraction = `${ user.fraction } - ${ opponent.fraction }`
 
       if (this.fraction === fraction) {
-        text = '平局'
+        text += '平局'
       } else {
         if (!this.detail.isDefeat) {
           let color = this.pieceIndex % 2 ? pieceColor.black : pieceColor.white
-          text = color.text + '赢'
+          text += color.text + '赢'
         } else {
           let color = this.pieceIndex % 2 ? pieceColor.white : pieceColor.black
-          text = color.text + '认输'
+
+          let startTime = this.detail.startDate
+          let endTime = this.detail.endDate
+          if (endPiece) {
+            startTime = endPiece.date
+          }
+          if (this.logDetail.countDown === endTime - startTime) {
+            text = '倒计时结束，' + color.text + '输'
+          } else {
+            text += color.text + '认输'
+          }
         }
       }
 
       this.logTexts = [].concat({
         date: this.detail.endDate,
-        text: '结束，' + text
+        text
       }, this.logTexts)
 
       this.fraction = fraction

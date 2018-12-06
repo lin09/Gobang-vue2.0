@@ -31,5 +31,17 @@ export default {
   ...funs,
   dateFormat: (value, format) => {
     return value ? date.unix(value).format(format) : value
+  },
+  time: (value) => {
+    let m = Math.floor(value / 60)
+    if (m < 10) {
+      m = `0${m}`
+    }
+
+    let s = value % 60
+    if (s < 10) {
+      s = `0${s}`
+    }
+    return `${m} : ${s}`
   }
 }

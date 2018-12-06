@@ -14,8 +14,8 @@ const defaultState = {
   opponent: {},
   // 比赛模式，选择对手是电脑、网友
   mode: {},
-  // 轮到谁下
-  fall: {},
+  // 轮到什么颜色下
+  fall: 0,
   // 倒计时
   countDown: 0,
   // 局数
@@ -81,7 +81,7 @@ export default new Vuex.Store({
       state.mode = mode
     },
     setFall (state, fall) {
-      state.fall = fall || {}
+      state.fall = fall
     },
     setCountDown (state, countDown) {
       state.countDown = countDown
@@ -92,6 +92,7 @@ export default new Vuex.Store({
       state.isDefeat = false
       state.isDraw = false
       state.logPieces = []
+      state.fall = 0
       state.roundNum ++
 
       if (state.roundNum === 1) {
@@ -134,6 +135,7 @@ export default new Vuex.Store({
           date: state.startDate,
           user: state.user,
           opponent: state.opponent,
+          countDown: state.countDown,
           list: [
             ...(logDetail.list || []),
             {
@@ -178,7 +180,7 @@ export default new Vuex.Store({
     defeat ({ commit, state }) {
       commit('setIsDefeat', true)
       commit('setIsOver', true)
-      if (state.fall.color.value !== state.user.color.value) {
+      if (state.fall !== state.user.color.value) {
         commit('setUser', {
           ...state.user,
           fraction: state.user.fraction + 1
@@ -193,7 +195,7 @@ export default new Vuex.Store({
     // 赢
     victory ({ commit, state }) {
       commit('setIsOver', true)
-      if (state.fall.color.value === state.user.color.value) {
+      if (state.fall === state.user.color.value) {
         commit('setUser', {
           ...state.user,
           fraction: state.user.fraction + 1

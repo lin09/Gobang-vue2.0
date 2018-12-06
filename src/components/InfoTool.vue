@@ -21,16 +21,19 @@
         <span>{{ user.name }}{{ blank }}</span>
         <Piece :data="{ value: user.color.value }"/>
         <div v-if="countDown > 0" class="time">
-          <div>局{{ blank }}时：01:00</div>
-          <div>倒计时：01:00</div>
+          <div>局{{ blank }}时：{{ userCountDownTotal | time }}</div>
+          <div>倒计时：{{ userCountDown | time }}</div>
         </div>
       </div>
       <div v-if="isDraw">平局</div>
-      <div v-if="fall.color && !isDraw">{{ !isOver ? `轮到${ fall.color.text }下` : `${ fall.color.text }${ isDefeat ? '认输' : '赢' }` }}</div>
+      <div v-else-if="fall && !isDraw">
+        <span v-if="!isOver">轮到{{ fall | pieceColor }}下</span>
+        <span v-else>{{ fall | pieceColor }}{{ `${ isDefeat ? '认输' : '赢' }` }}</span>
+      </div>
       <div class="user">
         <div v-if="countDown > 0" class="time">
-          <div>局{{ blank }}时：01:00</div>
-          <div>倒计时：01:00</div>
+          <div>局{{ blank }}时：{{ opponentCountDownTotal | time }}</div>
+          <div>倒计时：{{ opponentCountDown | time }}</div>
         </div>
         <Piece :data="{ value: opponent.color.value }"/>
         <span>{{ blank }}{{ opponent.name }}</span>
@@ -51,7 +54,12 @@ export default {
   data () {
     return {
       // 直接写全角空格在 template 上会报 no-irregular-whitespace，使用 eslint-disable-next-line 无效果
-      blank: '　'
+      blank: '　',
+      userCountDown: 0,
+      userCountDownTotal: 0,
+      opponentCountDown: 0,
+      opponentCountDownTotal: 0,
+      timeout: '',
     }
   },
   computed: mapState({
@@ -64,6 +72,62 @@ export default {
     isDefeat: state => state.isDefeat,
     isDraw: state => state.isDraw
   }),
+  watch: {
+    fall (val) {
+      if (val && this.countDown) {
+        clearTimeout(this.timeout)
+
+        if (this.fall === this.user.color.value) {
+          this.opponentCountDownTotal += this.countDown - this.opponentCountDown
+          this.opponentCountDown = 0
+
+          // 玩家计时
+          this.userCountDown = this.countDown
+          let count = () => {
+            this.timeout = setTimeout(() => {
+              this.userCountDown --
+
+              if (this.userCountDown === 0) {
+                // 倒计时结束
+                this.defeat()
+                return
+              }
+              // 继续计时
+              count()
+            }, 1000)
+          }
+          // 开始计时
+          count()
+        } else {
+          this.userCountDownTotal += this.countDown - this.userCountDown
+          this.userCountDown = 0
+
+          // 对手计时
+          this.opponentCountDown = this.countDown
+          let count = () => {
+            this.timeout = setTimeout(() => {
+              this.opponentCountDown --
+
+              if (this.opponentCountDown === 0) {
+                this.defeat()
+                return
+              }
+              count()
+            }, 1000)
+          }
+          count()
+        }
+      }
+    },
+    roundNum () {
+      if (this.countDown) {
+        this.userCountDownTotal = 0
+        this.userCountDown = this.countDown
+        this.opponentCountDownTotal = 0
+        this.opponentCountDown = this.countDown
+      }
+    }
+  },
   methods: {
     ...mapActions(['defeat', 'next', 'start', 'draw']),
     handleStart () {

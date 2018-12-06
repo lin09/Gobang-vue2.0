@@ -68,6 +68,10 @@ export default {
   },
   methods: {
     handleChange () {
+      if (this.type === 'number') {
+        // 转化数字
+        this.model *= 1
+      }
       this.$emit('input', this.model)
     }
   }
