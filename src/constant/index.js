@@ -1,5 +1,6 @@
 import constant from './const'
 import data from './data'
+import Priority from './priority'
 
 export const {
   LOGS,
@@ -14,18 +15,48 @@ export const {
   opponent
 } = data
 
+export const priority = Priority
+
 // 全部棋子的初始化数据
-export class piecesInitData {
+export class piecesData {
   constructor () {
-    this.baseData = {}
-    this.countData = {}
     this.init()
   }
 
   init () {
+    this.baseData = {}
+    this.countData = {}
+    this.tbk = []
+    this.lrk = []
+    this.ltrbk = []
+    this.rtlbk = []
+
     for (let x = 1; x < 16; x ++) {
-      for (let y = 1; y < 16; y ++) {
+      this.tbk[x-1] = []
+      this.lrk[x-1] = []
+      let ltrbkIndex = (x - 1) * 2
+      if (x < 12) {
+        this.ltrbk[ltrbkIndex] = []
+        this.rtlbk[ltrbkIndex] = []
+        if (ltrbkIndex > 0) {
+          this.ltrbk[ltrbkIndex-1] = []
+          this.rtlbk[ltrbkIndex-1] = []
+        }
+      }
+      for (let y = 1, x1 = x, x2 = 16 - x; y < 16; y ++, x1 ++, x2 --) {
         let key = `${ x }-${ y }`
+        this.tbk[x-1].push(key)
+        this.lrk[x-1].push(`${ y }-${ x }`)
+        if (x === 1) {
+          this.ltrbk[0].push(`${ x1 }-${ y }`)
+          this.rtlbk[0].push(`${ y }-${ x2 }`)
+        } else if (x < 12 && x1 < 16) {
+          this.ltrbk[ltrbkIndex-1].push(`${ x1 }-${ y }`)
+          this.ltrbk[ltrbkIndex].push(`${ y }-${ x1 }`)
+          this.rtlbk[ltrbkIndex-1].push(`${ y }-${ x2 }`)
+          this.rtlbk[ltrbkIndex].push(`${ y + x - 1 }-${ x2 + x - 1 }`)
+        }
+
         let item = {
           ...pieceColor.none,
           x,
@@ -111,5 +142,6 @@ export default {
     ...constant,
     ...data
   },
-  piecesInitData
+  priority,
+  piecesData
 }

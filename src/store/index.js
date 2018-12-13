@@ -24,7 +24,7 @@ const defaultState = {
   isOver: true,
   // 认输
   isDefeat: false,
-  // 打平
+  // 和局
   isDraw: false,
   // 开始时间
   startDate: 0,
@@ -33,7 +33,9 @@ const defaultState = {
   // 下棋子数据
   downPiece: {},
   // 下棋子坐标记录
-  logPieces: []
+  logPieces: [],
+  // 自动下
+  automatic: false
 }
 
 export default new Vuex.Store({
@@ -162,6 +164,9 @@ export default new Vuex.Store({
         })
       }
     },
+    getAutomatic (state) {
+      state.automatic = !state.automatic
+    },
     // 重置数据
     reset (state) {
       let dState = cloneDeep(defaultState)
@@ -192,7 +197,7 @@ export default new Vuex.Store({
         })
       }
     },
-    // 赢
+    // 胜
     victory ({ commit, state }) {
       commit('setIsOver', true)
       if (state.fall === state.user.color.value) {
@@ -207,7 +212,7 @@ export default new Vuex.Store({
         })
       }
     },
-    // 打平
+    // 和局
     draw ({ commit }) {
       commit('setIsOver', true)
       commit('setIsDraw', true)

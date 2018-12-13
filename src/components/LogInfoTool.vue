@@ -153,7 +153,7 @@ export default {
     },
     handleEnd (endPiece) {
       let fraction, user, opponent
-      let text = '结束，'
+      let text = ''
       // 结束后，比分更新为下一局，无下一局读最终比赛结果数据
       if (this.detail.roundNum < this.logDetail.list.length) {
         let nextRound = this.logDetail.list[this.detail.roundNum]
@@ -166,11 +166,11 @@ export default {
       fraction = `${ user.fraction } - ${ opponent.fraction }`
 
       if (this.fraction === fraction) {
-        text += '平局'
+        text += '和局'
       } else {
         if (!this.detail.isDefeat) {
           let color = this.pieceIndex % 2 ? pieceColor.black : pieceColor.white
-          text += color.text + '赢'
+          text += color.text + '方胜'
         } else {
           let color = this.pieceIndex % 2 ? pieceColor.white : pieceColor.black
 
@@ -180,9 +180,9 @@ export default {
             startTime = endPiece.date
           }
           if (this.logDetail.countDown === endTime - startTime) {
-            text = '倒计时结束，' + color.text + '输'
+            text = '倒计时结束，' + color.text + '方输'
           } else {
-            text += color.text + '认输'
+            text += color.text + '方认输'
           }
         }
       }

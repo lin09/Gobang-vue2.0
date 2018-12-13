@@ -30,11 +30,11 @@ export const pieceColor = {
   },
   black: {
     value: 1,
-    text: '黑棋'
+    text: '黑'
   },
   white: {
     value: 2,
-    text: '白棋'
+    text: '白'
   }
 }
 

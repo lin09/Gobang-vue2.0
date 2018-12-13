@@ -1,12 +1,13 @@
 <template>
   <div class="checkerboard">
-    <CheckerboardBase :baseData="baseData" />
+    <CheckerboardBase :baseData="piecesData.baseData" />
   </div>
 </template>
 
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
-import { pieceColor, piecesInitData } from '../constant'
+import { pieceColor, piecesData, opponent, priority } from '../constant'
+import { forEach, pick } from '../tools'
 import CheckerboardBase from './CheckerboardBase.vue'
 
 export default {
@@ -17,9 +18,9 @@ export default {
   data () {
     return {
       // 棋子数据
-      baseData: {},
-      // 统计棋子数据
-      countData: {}
+      piecesData: {},
+      // 优先排序
+      priority: {}
     }
   },
   computed: mapState({
@@ -28,7 +29,10 @@ export default {
     opponent: state => state.opponent,
     downPiece: state => state.downPiece,
     roundNum: state => state.roundNum,
-    countDown: state => state.countDown
+    countDown: state => state.countDown,
+    mode: state => state.mode,
+    automatic: state => state.automatic,
+    logPieces: state => state.logPieces
   }),
   watch: {
     roundNum () {
@@ -36,6 +40,9 @@ export default {
     },
     downPiece (val) {
       this.handlePiece(val)
+    },
+    automatic (val) {
+      val && this.logPieces.length === 0 && this.setDownPiece(this.piecesData.baseData['8-8'])
     }
   },
   created () {
@@ -46,10 +53,10 @@ export default {
   },
   methods: {
     ...mapActions(['victory', 'start']),
-    ...mapMutations(['setFall']),
+    ...mapMutations(['setFall', 'setDownPiece']),
     // 下棋子处理
     handlePiece (data) {
-      let item = this.baseData[data.key]
+      let item = this.piecesData.baseData[data.key]
       item.value = this.fall
 
       // 下棋子后是不是结束
@@ -69,11 +76,52 @@ export default {
         item.text = pieceColor.white.text
         this.setFall(pieceColor.black.value)
       }
+
+      // 电脑
+      if (this.mode.value === opponent.simpleComputer.value) {
+        // 处理棋子优先级
+        this.handlePriority(item)
+
+        if (this.automatic) {
+          setTimeout(this.computerDownPiece, 1000)
+        } else if (this.fall === this.opponent.color.value)  {
+          // 轮到电脑自动下
+          this.computerDownPiece()
+        }
+      }
+    },
+    handlePriority (data) {
+      // 获取该棋子所在排的棋子值
+      forEach(this.priority.pieceKey[data.key], (kss, direction) => {
+        forEach(kss, (keys, index) => {
+          // 当前值
+          let newValues = []
+          // 当前棋子值为空子值
+          let oldValues = []
+          forEach(keys, (key) => {
+            let val = this.piecesData.baseData[key].value
+            newValues.push(val)
+            if (key === data.key) {
+              oldValues.push(pieceColor.none.value)
+            } else {
+              oldValues.push(val)
+            }
+          })
+          // 更新排数据
+          this.priority.updateItem(data.key, direction, index, newValues, oldValues)
+        })
+      })
+    },
+    computerDownPiece () {
+      // 获取优先棋子
+      let keys = this.priority.getBestKeys(this.fall)
+      // 当多个时随机
+      this.setDownPiece(this.piecesData.baseData[keys[Math.floor(Math.random() * keys.length)]])
     },
     // 检查是否是五子相连
     handleIsOver (data) {
       let isOver = false
-      let item = this.countData[data.key]
+      let item = this.piecesData.countData[data.key]
 
       let tItems = this.getConnections(item.tk)
       let bItems = this.getConnections(item.bk)
@@ -118,7 +166,7 @@ export default {
     getConnections (itemKeys) {
       let connections = []
       for (let i in itemKeys) {
-        let item = this.baseData[itemKeys[i]]
+        let item = this.piecesData.baseData[itemKeys[i]]
         if (item.value === this.fall) {
           connections.push(item)
         } else {
@@ -132,9 +180,16 @@ export default {
       // 黑子先手
       this.setFall(pieceColor.black.value)
 
-      let { baseData, countData } = new piecesInitData()
-      this.baseData = baseData
-      this.countData = countData
+      this.piecesData = new piecesData()
+
+      // 电脑
+      if (this.mode.value === opponent.simpleComputer.value) {
+        this.priority = new priority()
+        this.priority.setPieceKeys(pick(this.piecesData, ['tbk', 'lrk', 'ltrbk', 'rtlbk']))
+        if (this.fall === this.opponent.color.value || this.automatic) {
+          this.setDownPiece(this.piecesData.baseData['8-8'])
+        }
+      }
     }
   }
 }

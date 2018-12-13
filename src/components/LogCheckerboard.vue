@@ -6,7 +6,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import { piecesInitData } from '../constant'
+import { piecesData } from '../constant'
 import CheckerboardBase from './CheckerboardBase.vue'
 
 export default {
@@ -43,7 +43,7 @@ export default {
   },
   methods: {
     init () {
-      let { baseData } = new piecesInitData()
+      let { baseData } = new piecesData()
       this.baseData = baseData
     }
   }

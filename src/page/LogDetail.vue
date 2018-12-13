@@ -1,6 +1,6 @@
 <template>
   <div class="log-detail">
-    <div class="title">对战记录</div>
+    <div class="title">复盘</div>
     <div class="content">
       <LogCheckerboard />
       <LogInfoTool />

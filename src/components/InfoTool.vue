@@ -11,8 +11,9 @@
         <div class="score">{{ user.fraction }} : {{ opponent.fraction }}</div>
       </div>
       <div class="col-3">
+        <button v-if="mode.value === 1" @click="handleAutomatic" :disabled="isOver">自动</button>
         <button @click="handleDefeat" :disabled="isOver">认输</button>
-        <button @click="handleDraw" :disabled="isOver">平局</button>
+        <button @click="handleDraw" :disabled="isOver">和局</button>
         <button @click="handleQuit">退出</button>
       </div>
     </div>
@@ -25,10 +26,10 @@
           <div>倒计时：{{ userCountDown | time }}</div>
         </div>
       </div>
-      <div v-if="isDraw">平局</div>
+      <div v-if="isDraw">和局</div>
       <div v-else-if="fall && !isDraw">
-        <span v-if="!isOver">轮到{{ fall | pieceColor }}下</span>
-        <span v-else>{{ fall | pieceColor }}{{ `${ isDefeat ? '认输' : '赢' }` }}</span>
+        <span v-if="!isOver">轮到{{ fall | pieceColor }}方下</span>
+        <span v-else>{{ fall | pieceColor }}方{{ `${ isDefeat ? '认输' : '胜' }` }}</span>
       </div>
       <div class="user">
         <div v-if="countDown > 0" class="time">
@@ -43,7 +44,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapMutations } from 'vuex'
 import Piece from './Piece.vue'
 
 export default {
@@ -70,7 +71,8 @@ export default {
     roundNum: state => state.roundNum,
     isOver: state => state.isOver,
     isDefeat: state => state.isDefeat,
-    isDraw: state => state.isDraw
+    isDraw: state => state.isDraw,
+    mode: state => state.mode
   }),
   watch: {
     fall (val) {
@@ -130,8 +132,12 @@ export default {
   },
   methods: {
     ...mapActions(['defeat', 'next', 'start', 'draw']),
+    ...mapMutations(['getAutomatic']),
     handleStart () {
       this.start()
+    },
+    handleAutomatic () {
+      this.getAutomatic()
     },
     handleDefeat () {
       this.defeat()
@@ -165,8 +171,8 @@ export default {
     width: percentage(1/3);
   }
 
-  button {
-    margin-left: 10px;
+  button + button {
+    margin-left: 7px;
   }
 }
 
