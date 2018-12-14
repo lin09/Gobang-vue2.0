@@ -20,7 +20,9 @@ export default {
       // 棋子数据
       piecesData: {},
       // 优先排序
-      priority: {}
+      priority: {},
+      // 自动下一棋时间（毫秒）
+      automaticMsec: 500
     }
   },
   computed: mapState({
@@ -42,7 +44,7 @@ export default {
       this.handlePiece(val)
     },
     automatic (val) {
-      val && this.logPieces.length === 0 && this.setDownPiece(this.piecesData.baseData['8-8'])
+      val && (this.logPieces.length === 0 ? this.setDownPiece(this.piecesData.baseData['8-8']) : this.computerDownPiece())
     }
   },
   created () {
@@ -52,7 +54,7 @@ export default {
     !this.countDown && this.start()
   },
   methods: {
-    ...mapActions(['victory', 'start']),
+    ...mapActions(['victory', 'start', 'draw']),
     ...mapMutations(['setFall', 'setDownPiece']),
     // 下棋子处理
     handlePiece (data) {
@@ -83,7 +85,7 @@ export default {
         this.handlePriority(item)
 
         if (this.automatic) {
-          setTimeout(this.computerDownPiece, 1000)
+          setTimeout(this.computerDownPiece, this.automaticMsec)
         } else if (this.fall === this.opponent.color.value)  {
           // 轮到电脑自动下
           this.computerDownPiece()
@@ -115,8 +117,13 @@ export default {
     computerDownPiece () {
       // 获取优先棋子
       let keys = this.priority.getBestKeys(this.fall)
-      // 当多个时随机
-      this.setDownPiece(this.piecesData.baseData[keys[Math.floor(Math.random() * keys.length)]])
+      if (keys.length === 0) {
+        // 和局
+        this.draw()
+      } else {
+        // 当多个时随机
+        this.setDownPiece(this.piecesData.baseData[keys[Math.floor(Math.random() * keys.length)]])
+      }
     },
     // 检查是否是五子相连
     handleIsOver (data) {

@@ -35,6 +35,11 @@ button {
   }
 }
 
+.btn-orange {
+  background: #ff8000;
+  color: #fff;
+}
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

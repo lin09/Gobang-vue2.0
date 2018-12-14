@@ -11,7 +11,7 @@
         <div class="score">{{ user.fraction }} : {{ opponent.fraction }}</div>
       </div>
       <div class="col-3">
-        <button v-if="mode.value === 1" @click="handleAutomatic" :disabled="isOver">自动</button>
+        <button v-if="mode.value === 1" @click="handleAutomatic" :disabled="isOver" :class="automatic ? 'btn-orange' : '' ">自动</button>
         <button @click="handleDefeat" :disabled="isOver">认输</button>
         <button @click="handleDraw" :disabled="isOver">和局</button>
         <button @click="handleQuit">退出</button>
@@ -72,7 +72,8 @@ export default {
     isOver: state => state.isOver,
     isDefeat: state => state.isDefeat,
     isDraw: state => state.isDraw,
-    mode: state => state.mode
+    mode: state => state.mode,
+    automatic: state => state.automatic
   }),
   watch: {
     fall (val) {

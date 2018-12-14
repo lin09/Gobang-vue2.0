@@ -67,10 +67,10 @@ class priority {
 
     return result
   }
-  updateItem (key, direction, index, newValues, oldValues) {
+  updateItem (key, direction, dIndex, newValues, oldValues) {
     let newTypeKey = this.getTypeKeys(newValues)
     let oldTypeKey = this.getTypeKeys(oldValues)
-    let keys = this.pieceKey[key][direction][index]
+    let keys = this.pieceKey[key][direction][dIndex]
     forEach(oldTypeKey, (typkeys, index) => {
       if (!typkeys || typkeys.length === 0) {
         return true
@@ -80,12 +80,15 @@ class priority {
         let typekey = typkeys[i]
         if (typekey && typekey !== newTypeKey[index][i]) {
           let k = keys[i]
-          let item = this[k][type][typekey][direction]
-          let indexOf = item.indexOf(keys)
-          if (indexOf !== -1) {
-            item.splice(indexOf, 1)
-            item.length === 0 && this[type][typekey][k] && delete this[type][typekey][k][direction]
-            JSON.stringify(this[type][typekey][k]) === '{}' && delete this[type][typekey][k]
+          if (k !== key) {
+            let item = this[k][type][typekey][direction]
+            let indexOf = item.indexOf(keys)
+            if (indexOf !== -1) {
+              item.splice(indexOf, 1)
+              item.length === 0 && this[type][typekey][k] && delete this[type][typekey][k][direction]
+              JSON.stringify(this[type][typekey][k]) === '{}' && delete this[type][typekey][k]
+              JSON.stringify(this[k]) === JSON.stringify(this.toObject({})) && delete this[k]
+            }
           }
         }
       })
@@ -108,9 +111,13 @@ class priority {
     })
     forEach(this[key], (kss, type) => {
       forEach(kss, (ks, typeKey) => {
+        forEach(this[type][typeKey][key], (keys, drie) => {
+          delete this[key][type][typeKey][drie]
+        })
         delete this[type][typeKey][key]
       })
     })
+    JSON.stringify(this[key]) === JSON.stringify(this.toObject({})) && delete this[key]
   }
   getTypeKeys (values) {
     // values = [0,1,...]
@@ -259,7 +266,7 @@ class priority {
 
     return result
   }
-  getBestKeys (value) {
+  getBestKeys (value, level) {
     let result = []
     let type1 = value === 1 ? 'black' : 'white'
     let type2 = value === 2 ? 'black' : 'white'
@@ -304,6 +311,8 @@ class priority {
     let MaxVal = 0
     let result = []
     let keysNums = []
+    let m3 = []
+    let m2 = []
     forEach(this[type][typeKey], (item, key) => {
       let directionNum = 0
       let direction = ''
@@ -315,6 +324,8 @@ class priority {
       })
 
       if ([this.priorities[2], this.priorities[4]].indexOf(typeKey) > -1 && directionNum < 2) {
+        typeKey === this.priorities[2] && m3.push(key)
+        typeKey === this.priorities[4] && m2.push(key)
         let isAuxiliary = false
         forEach(this.priorities.slice(3, 7), (tpKey) => {
           let num = 0
@@ -356,6 +367,10 @@ class priority {
       })
 
       result = newResult
+    }
+
+    if (result.length === 0) {
+      result = m3.length ? m3 : m2
     }
 
     return result
