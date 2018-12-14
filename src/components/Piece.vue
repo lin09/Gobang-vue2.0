@@ -1,6 +1,6 @@
 <template>
   <div class="piece">
-    <div v-if="!isOver && data.value === pieceColor.none.value" class="none" @click="handlePiece"></div>
+    <div v-if="!isOver && !automatic && data.value === pieceColor.none.value" class="none" @click="handlePiece"></div>
     <div v-if="data.value === pieceColor.black.value" :class="data.active ? 'black acitve' : 'black'">{{ data.index }}</div>
     <div v-if="data.value === pieceColor.white.value" :class="data.active ? 'white acitve' : 'white'">{{ data.index }}</div>
   </div>
@@ -32,6 +32,7 @@ export default {
     }
   },
   computed: mapState({
+    automatic: state => state.automatic,
     isOver: state => state.isOver
   }),
   methods: {

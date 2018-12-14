@@ -21,8 +21,9 @@
 
     <Modal v-model="showComputerModal" title="设置信息" okText='确认' @ok="goComputer">
       <cForm ref="computerForm" @submit="goComputer" :formData="computerFormData" :rules="computerRules">
-        <FormGroup v-model="computerFormData.userName" label="黑棋：" placeholder="请输入玩家名字" />
+        <FormGroup v-model="computerFormData.userName" label="玩家：" placeholder="请输入玩家名字" />
         <FormGroup v-model="computerFormData.selectedColor" label="选择：" type="radio" :values="[pieceColor.black, pieceColor.white]"/>
+        <FormGroup v-model="computerFormData.countDown" label="倒计时（秒，0为不计时）：" placeholder="请输入正整数" type="number" :min="0" />
       </cForm>
     </Modal>
   </div>
@@ -53,10 +54,10 @@ export default {
       // 全部正则，在 created 再组装
       rules: {
         userName: [
-          { required: true, message: '黑棋玩家名字不能为空' }
+          { required: true, message: '玩家名字不能为空' }
         ],
         opponentName: [
-          { required: true, message: '白棋玩家名字不能为空' }
+          { required: true, message: '玩家名字不能为空' }
         ],
         selectedColor: [
           { rgx: `^(${pieceColor.black.value}|${pieceColor.white.value})$`, message: '选择颜色错误' }
@@ -91,8 +92,11 @@ export default {
     // 重置state
     this.reset()
 
-    this.siteRules = pick(this.rules, ['userName', 'opponentName', 'countDown'])
-    this.computerRules = pick(this.rules, ['userName', 'selectedColor'])
+    this.siteRules = {
+      ...pick(this.rules, ['userName', 'countDown']),
+      opponentName: this.rules.opponentName
+    }
+    this.computerRules = pick(this.rules, ['userName', 'selectedColor', 'countDown'])
   },
   methods: {
     ...mapMutations(['setUser', 'setOpponent', 'setMode', 'setCountDown', 'reset']),
@@ -157,7 +161,7 @@ export default {
         fraction: 0
       })
 
-      this.$router.push('computer')
+      this.$router.push('game')
     }
   }
 }

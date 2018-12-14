@@ -22,7 +22,9 @@ export default {
       // 优先排序
       priority: {},
       // 自动下一棋时间（毫秒）
-      automaticMsec: 500
+      automaticMsec: 100,
+      // 对手是不是电脑
+      isComputer: false
     }
   },
   computed: mapState({
@@ -49,6 +51,8 @@ export default {
   },
   created () {
     window.cb = this
+
+    this.isComputer = this.mode.value === opponent.simpleComputer.value || this.mode.value === opponent.difficultComputer.value
 
     // 无计时，直接开始
     !this.countDown && this.start()
@@ -80,7 +84,7 @@ export default {
       }
 
       // 电脑
-      if (this.mode.value === opponent.simpleComputer.value) {
+      if (this.isComputer) {
         // 处理棋子优先级
         this.handlePriority(item)
 
@@ -94,7 +98,7 @@ export default {
     },
     handlePriority (data) {
       // 获取该棋子所在排的棋子值
-      forEach(this.priority.pieceKey[data.key], (kss, direction) => {
+      forEach(this.priority.pieceBaseKey[data.key], (kss, direction) => {
         forEach(kss, (keys, index) => {
           // 当前值
           let newValues = []
@@ -190,9 +194,9 @@ export default {
       this.piecesData = new piecesData()
 
       // 电脑
-      if (this.mode.value === opponent.simpleComputer.value) {
+      if (this.isComputer) {
         this.priority = new priority()
-        this.priority.setPieceKeys(pick(this.piecesData, ['tbk', 'lrk', 'ltrbk', 'rtlbk']))
+        this.priority.setPieceBaseKeys(pick(this.piecesData, ['tbk', 'lrk', 'ltrbk', 'rtlbk']))
         if (this.fall === this.opponent.color.value || this.automatic) {
           this.setDownPiece(this.piecesData.baseData['8-8'])
         }

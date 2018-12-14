@@ -45,6 +45,7 @@ class priority {
     this.init()
   }
   init () {
+    this.pieceBaseKey = {}
     this.pieceKey = {}
     let result = this.toObject({})
     this.black = result.black
@@ -70,7 +71,7 @@ class priority {
   updateItem (key, direction, dIndex, newValues, oldValues) {
     let newTypeKey = this.getTypeKeys(newValues)
     let oldTypeKey = this.getTypeKeys(oldValues)
-    let keys = this.pieceKey[key][direction][dIndex]
+    let keys = this.pieceBaseKey[key][direction][dIndex]
     forEach(oldTypeKey, (typkeys, index) => {
       if (!typkeys || typkeys.length === 0) {
         return true
@@ -81,13 +82,13 @@ class priority {
         if (typekey && typekey !== newTypeKey[index][i]) {
           let k = keys[i]
           if (k !== key) {
-            let item = this[k][type][typekey][direction]
+            let item = this.pieceKey[k][type][typekey][direction]
             let indexOf = item.indexOf(keys)
             if (indexOf !== -1) {
               item.splice(indexOf, 1)
               item.length === 0 && this[type][typekey][k] && delete this[type][typekey][k][direction]
               JSON.stringify(this[type][typekey][k]) === '{}' && delete this[type][typekey][k]
-              JSON.stringify(this[k]) === JSON.stringify(this.toObject({})) && delete this[k]
+              JSON.stringify(this.pieceKey[k]) === JSON.stringify(this.toObject({})) && delete this.pieceKey[k]
             }
           }
         }
@@ -102,22 +103,22 @@ class priority {
         }
 
         let k = keys[i]
-        let item = this[k] || this.toObject({})
+        let item = this.pieceKey[k] || this.toObject({})
         item[type][typekey][direction] = item[type][typekey][direction] || []
         item[type][typekey][direction].indexOf(keys) === -1 && item[type][typekey][direction].push(keys)
-        this[k] = item
+        this.pieceKey[k] = item
         this[type][typekey][k] = item[type][typekey]
       })
     })
-    forEach(this[key], (kss, type) => {
+    forEach(this.pieceKey[key], (kss, type) => {
       forEach(kss, (ks, typeKey) => {
         forEach(this[type][typeKey][key], (keys, drie) => {
-          delete this[key][type][typeKey][drie]
+          delete this.pieceKey[key][type][typeKey][drie]
         })
         delete this[type][typeKey][key]
       })
     })
-    JSON.stringify(this[key]) === JSON.stringify(this.toObject({})) && delete this[key]
+    JSON.stringify(this.pieceKey[key]) === JSON.stringify(this.toObject({})) && delete this.pieceKey[key]
   }
   getTypeKeys (values) {
     // values = [0,1,...]
@@ -266,137 +267,264 @@ class priority {
 
     return result
   }
-  getBestKeys (value, level) {
+  getBestKeys (value) {
+    return this.simpleComputer(value)
+  }
+  getBestKey (keys) {
+    let maxVal = 0
+    let result = []
+    forEach(keys, (key) => {
+      let fraction = this.getFraction(key)
+      if (fraction > maxVal) {
+        result = [key]
+        maxVal = fraction
+      } else if (fraction === maxVal) {
+        result.push(key)
+      }
+    })
+    return result
+  }
+  getFraction (key) {
+    let value = 0
+    forEach(this.pieceKey[key], (typeObj) => {
+      forEach(typeObj, (item, typeKey) => {
+        let typeInde = this.priorities.indexOf(typeKey)
+        let f = (7 - typeInde) * (typeInde % 2 + 1)
+        forEach(item, (keys) => {
+          value += f * keys.length
+        })
+      })
+    })
+    return value
+  }
+  simpleComputer (value) {
     let result = []
     let type1 = value === 1 ? 'black' : 'white'
     let type2 = value === 2 ? 'black' : 'white'
 
-    forEach(this.priorities, (typeKey) => {
-      result = this.getKeys(type1, typeKey)
+    // 四 一步必胜
+    // 下方四
+    result = this.getKeys(type1, this.priorities[0])
+    if (result.length) {
+      return result
+    }
+    // 另一方四
+    result = this.getKeys(type2, this.priorities[0])
+    if (result.length) {
+      return result
+    }
+
+    // 活三、双眠三、两步必胜
+    // 眠三：m3=[[下方key, ...], [另一方key, ...]]
+    let m3 = [[], []]
+    forEach([type1, type2], (type, index) => {
+      // 活三
+      result = this.getKeys(type, this.priorities[1])
+      if (result.length) {
+        if (index === 1) {
+          result = this.getBestKey(result)
+        }
+        return false
+      }
+      // 眠三
+      m3[index] = this.getKeys(type, this.priorities[2])
+      // 双眠三
+      result = this.get2M3Keys(m3[index], type)
       if (result.length) {
         return false
       }
-
-      result = this.getKeys(type2, typeKey)
+      // 眠三+活二（还没做：眠三下后另一个空还检查是不是对方的眠三）
+      result = this.getM3H2Keys(m3[index], type)
       if (result.length) {
         return false
       }
     })
+    if (result.length) {
+      return this.getBestKey(result)
+    }
 
-    if (result.length > 1) {
-      let MaxVal = 0
-      let newResult = []
-      forEach(result, (key) => {
-        let total = 0
-        forEach(this[key], (ksss) => {
-          forEach(ksss, (kss) => {
-            forEach(kss, (keys) => {
-              total += keys.length
-            })
-          })
-        })
-        if (total > MaxVal) {
-          MaxVal = total
-          newResult = [key]
-        } else if (total === MaxVal) {
-          newResult.push(key)
-        }
+    // 活二 + 活二
+    // 活二：h2=[[下方key, ...], [另一方key, ...]]
+    let h2 = [[], []]
+    forEach([type1, type2], (type, index) => {
+      h2[index] = this.getKeys(type, this.priorities[3])
+      result = this.get2HKeys(h2[index], type, this.priorities[3])
+      if (result.length) {
+        return false
+      }
+    })
+    if (result.length) {
+      return this.getBestKey(result)
+    }
+    // 防对方眠三
+    if (m3[1].length) {
+      return this.getBestKey(m3[1])
+    }
+
+    // 活二 + 活一
+    forEach([type2, type1], (type, index) => {
+      result = this.getH2H1Keys(h2[index], type)
+      if (result.length) {
+        return false
+      }
+    })
+    if (result.length) {
+      return this.getBestKey(result)
+    }
+
+    // 活一
+    let h1 = [[], []]
+    // 活一 + 活一
+    let h11 = [[], []]
+    // 眠二
+    let m2 = [[], []]
+    // 眠一
+    let m1 = [[], []]
+    forEach([type1, type2], (type, index) => {
+      h1[index] = this.getKeys(type, this.priorities[5])
+      h11[index] = this.get2HKeys(h1[index], type, this.priorities[5])
+      m2[index] = this.getKeys(type, this.priorities[4])
+      m1[index] = this.getKeys(type, this.priorities[6])
+    })
+
+    result = (h2[1].length || h11[1].length) && [].concat(h2[1], h11[1])
+      || h2[0].length && h2[0]
+      || h11[0].length && h11[0]
+      || h1[0].length && h1[0]
+      || h1[1].length && h1[1]
+      || m2[1].length && m2[1]
+      || m3[0].length && m3[0]
+      || m2[0].length && m2[0]
+      || m1[0].length && m1[0]
+      || m1[1].length && m1[1]
+    return this.getBestKey(result)
+  }
+  getKeys(type, typeKey) {
+    let maxVal = 1
+    let result = []
+    forEach(this[type][typeKey], (item, key) => {
+      let num = 0
+      forEach(item, () => {
+        num ++
       })
 
-      result = newResult
-    }
+      if (num > maxVal) {
+        maxVal = num
+        result = [key]
+      } else if (num === maxVal) {
+        result.push(key)
+      }
+    })
     return result
   }
-  getKeys (type, typeKey) {
-    let MaxVal = 0
+  // 双眠三
+  get2M3Keys(m3, type) {
     let result = []
-    let keysNums = []
-    let m3 = []
-    let m2 = []
-    forEach(this[type][typeKey], (item, key) => {
-      let directionNum = 0
-      let direction = ''
-      let keysNum = 0
-      forEach(item, (keys, k) => {
-        direction = k
-        directionNum ++
-        keysNum += keys.length
+    forEach(m3, (key) => {
+      let num = 0
+      let start = false
+      let end = false
+      forEach(this.pieceKey[key][type][this.priorities[2]], (kss) => {
+        // 同方向key所在排的位有个开头和一个结尾
+        forEach(kss, (keys) => {
+          if (keys.length === 6) {
+            let index = keys.indexOf(key)
+            start = start || index === 0
+            end = end || index === 5
+          }
+        })
+        if (start && end) {
+          result = [key]
+          return false
+        }
+        num ++
       })
-
-      if ([this.priorities[2], this.priorities[4]].indexOf(typeKey) > -1 && directionNum < 2) {
-        typeKey === this.priorities[2] && m3.push(key)
-        typeKey === this.priorities[4] && m2.push(key)
-        let isAuxiliary = false
-        forEach(this.priorities.slice(3, 7), (tpKey) => {
-          let num = 0
-          forEach(this[key][type][tpKey], (keys, k) => {
-            if (direction != k) {
-              num ++
-            }
-          })
-          if (num) {
-            isAuxiliary = true
+      // 多方向有眠三
+      if (num > 1) {
+        result = [key]
+        return false
+      }
+    })
+    return result
+  }
+  // 眠三+活二
+  getM3H2Keys (m3, type) {
+    let result = []
+    forEach(m3, (key) => {
+      forEach(this.pieceKey[key][type][this.priorities[2]], (kss, m3d) => {
+        let isTrue = false
+        forEach(this.pieceKey[key][type][this.priorities[3]], (v, h2d) => {
+          // 不在同方即可
+          if (m3d !== h2d) {
+            isTrue = true
             return false
           }
         })
-        if (!isAuxiliary) {
+        if (isTrue) {
+          result.push(key)
           return false
         }
-      }
-
-      if (directionNum > MaxVal) {
-        result = [key]
-        keysNums = [keysNum]
-        MaxVal = directionNum
-      } else if (directionNum === MaxVal) {
-        result.push(key)
-        keysNums.push(keysNum)
-      }
-    })
-
-    if (result.length > 1) {
-      MaxVal = 0
-      let newResult = []
-      forEach(keysNums, (num, index) => {
-        if (num > MaxVal) {
-          MaxVal = num
-          newResult = [result[index]]
-        } else if (num === MaxVal) {
-          newResult.push(result[index])
-        }
       })
-
-      result = newResult
-    }
-
-    if (result.length === 0) {
-      result = m3.length ? m3 : m2
-    }
-
+    })
     return result
   }
-  setPieceKeys (kObj) {
+  // 双活二、一
+  get2HKeys (h, type, typeKey) {
+    let result = []
+    forEach(h, (key) => {
+      let num = 0
+      forEach(this.pieceKey[key][type][typeKey], () => {
+        num ++
+      })
+      // 多方向有活二、一
+      if (num > 1) {
+        result.push(key)
+      }
+    })
+    return result
+  }
+  // 活二 + 活一
+  getH2H1Keys (h2, type) {
+    let result = []
+    forEach(h2, (key) => {
+      let num = 0
+      forEach(this.pieceKey[key][type][this.priorities[3]], (v, h2d) => {
+        forEach(this.pieceKey[key][type][this.priorities[5]], (v2, h1d) => {
+          // 不在同方即可
+          if (h2d !== h1d) {
+            num ++
+          }
+        })
+      })
+      // 不同方向有活一
+      if (num > 0) {
+        result.push(key)
+      }
+    })
+    return result
+  }
+  setPieceBaseKeys (kObj) {
     // kObj = { tbk: [['1-1', ...], ...], lrk: [...], ltrbk: [...]}
     forEach(kObj, (kss, direction) => {
       forEach(kss, (keys) => {
         if (keys.length === 5) {
           forEach(keys, (key) => {
-            this.setPieceKey(key, direction, keys)
+            this.setPieceBaseKey(key, direction, keys)
           })
         } else if (keys.length > 5) {
           for (let i = 0; i < keys.length - 5; i++) {
             let ks = keys.slice(i, i + 6)
             forEach(ks, (key) => {
-            this.setPieceKey(key, direction, ks)
+            this.setPieceBaseKey(key, direction, ks)
             })
           }
         }
       })
     })
   }
-  setPieceKey(key, direction, keys) {
-    this.pieceKey[key] = this.pieceKey[key] || {}
-    this.pieceKey[key][direction] = [].concat(this.pieceKey[key][direction] || []).concat([keys])
+  setPieceBaseKey(key, direction, keys) {
+    this.pieceBaseKey[key] = this.pieceBaseKey[key] || {}
+    this.pieceBaseKey[key][direction] = [].concat(this.pieceBaseKey[key][direction] || []).concat([keys])
   }
 }
 export default priority
