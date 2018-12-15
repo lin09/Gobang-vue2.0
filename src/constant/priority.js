@@ -270,11 +270,11 @@ class priority {
   getBestKeys (value) {
     return this.simpleComputer(value)
   }
-  getBestKey (keys) {
-    let maxVal = 0
+  getBestKey (keys, type) {
+    let maxVal = -99999
     let result = []
     forEach(keys, (key) => {
-      let fraction = this.getFraction(key)
+      let fraction = this.getFraction(key, type)
       if (fraction > maxVal) {
         result = [key]
         maxVal = fraction
@@ -284,12 +284,13 @@ class priority {
     })
     return result
   }
-  getFraction (key) {
+  getFraction (key, type) {
     let value = 0
-    forEach(this.pieceKey[key], (typeObj) => {
+    forEach(this.pieceKey[key], (typeObj, tp) => {
       forEach(typeObj, (item, typeKey) => {
         let typeInde = this.priorities.indexOf(typeKey)
         let f = (7 - typeInde) * (typeInde % 2 + 1)
+        f = !type || tp === type ? f : -f
         forEach(item, (keys) => {
           value += f * keys.length
         })
@@ -322,7 +323,7 @@ class priority {
       result = this.getKeys(type, this.priorities[1])
       if (result.length) {
         if (index === 1) {
-          result = this.getBestKey(result)
+          result = this.getBestKey(result, type)
         }
         return false
       }
@@ -334,8 +335,11 @@ class priority {
         return false
       }
       // 眠三+活二（还没做：眠三下后另一个空还检查是不是对方的眠三）
-      result = this.getM3H2Keys(m3[index], type)
+      result = this.getM3OKeys(m3[index], type, this.priorities[3])
       if (result.length) {
+        if (index === 1) {
+          result = this.getBestKey(result, type)
+        }
         return false
       }
     })
@@ -356,20 +360,37 @@ class priority {
     if (result.length) {
       return this.getBestKey(result)
     }
-    // 防对方眠三
+
+    // 防对方眠三+活一
     if (m3[1].length) {
-      return this.getBestKey(m3[1])
+      // 眠三+活一
+      result = this.getM3OKeys(m3[1], type2, this.priorities[5])
+      if (result.length) {
+        return this.getBestKey(result, type2)
+      }
     }
 
     // 活二 + 活一
     forEach([type2, type1], (type, index) => {
-      result = this.getH2H1Keys(h2[index], type)
+      result = this.getH2H1Keys(h2[index ? 0 : 1], type)
       if (result.length) {
+        if (index === 0) {
+          result = this.getBestKey(result, type)
+        }
         return false
       }
     })
     if (result.length) {
       return this.getBestKey(result)
+    }
+
+    // 眠三+活一
+    if (m3[0].length) {
+      // 眠三+活一
+      result = this.getM3OKeys(m3[0], type1, this.priorities[5])
+      if (result.length) {
+        return this.getBestKey(result)
+      }
     }
 
     // 活一
@@ -387,17 +408,21 @@ class priority {
       m1[index] = this.getKeys(type, this.priorities[6])
     })
 
-    result = (h2[1].length || h11[1].length) && [].concat(h2[1], h11[1])
+    result = h11[0].length && this.getBestKey(h11[0], type1)
+      || m3[1].length && m3[1]
+      || h11[1].length && this.getBestKey(h11[1], type2)
+      || h2[1].length && this.getBestKey(h2[1], type2)
       || h2[0].length && h2[0]
-      || h11[0].length && h11[0]
-      || h1[0].length && h1[0]
-      || h1[1].length && h1[1]
-      || m2[1].length && m2[1]
-      || m3[0].length && m3[0]
+      || h1[0].length && this.getBestKey(h1[0], type2)
+      || h1[1].length && this.getBestKey(h1[1])
       || m2[0].length && m2[0]
       || m1[0].length && m1[0]
+      || m3[0].length && m3[0]
+      || m2[1].length && m2[1]
       || m1[1].length && m1[1]
-    return this.getBestKey(result)
+      || result
+
+    return result
   }
   getKeys(type, typeKey) {
     let maxVal = 1
@@ -407,7 +432,6 @@ class priority {
       forEach(item, () => {
         num ++
       })
-
       if (num > maxVal) {
         maxVal = num
         result = [key]
@@ -447,22 +471,21 @@ class priority {
     })
     return result
   }
-  // 眠三+活二
-  getM3H2Keys (m3, type) {
+  // 眠三+其它
+  getM3OKeys (m3, type, typeKey) {
     let result = []
     forEach(m3, (key) => {
       forEach(this.pieceKey[key][type][this.priorities[2]], (kss, m3d) => {
         let isTrue = false
-        forEach(this.pieceKey[key][type][this.priorities[3]], (v, h2d) => {
+        forEach(this.pieceKey[key][type][typeKey], (v, od) => {
           // 不在同方即可
-          if (m3d !== h2d) {
+          if (m3d !== od) {
             isTrue = true
             return false
           }
         })
         if (isTrue) {
           result.push(key)
-          return false
         }
       })
     })
