@@ -1,3 +1,4 @@
+在线玩 [https://lin09.github.io/Gobang-vue2.0/dist/index.html](https://lin09.github.io/Gobang-vue2.0/dist/index.html)
 # 五子棋（vue 2.0版）
 
 ## Project setup
@@ -15,15 +16,6 @@ yarn run serve
 yarn run build
 ```
 
-### Run your tests
-```
-yarn run test
-```
-
-### Lints and fixes files
-```
-yarn run lint
-```
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
