@@ -33,6 +33,7 @@ export default {
 
 .content {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .title {
