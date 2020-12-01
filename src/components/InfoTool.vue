@@ -159,7 +159,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="stylus" scoped>
 .info-tool {
   margin: 40px 0;
   font-size: 16px;

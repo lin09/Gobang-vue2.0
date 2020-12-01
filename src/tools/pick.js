@@ -8,7 +8,7 @@ export default (object = {}, paths = []) => {
   for (let i = 0; i < paths.length; i ++) {
     const key = paths[i]
 
-    if (object.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(object, key)) {
       result[key] = object[key]
     }
   }

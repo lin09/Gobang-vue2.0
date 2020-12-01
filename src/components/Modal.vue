@@ -102,7 +102,7 @@
   };
 </script>
 
-<style lang="scss" scoped>
+<style lang="stylus" scoped>
 .modal {
   position: fixed;
   z-index: 4100;
